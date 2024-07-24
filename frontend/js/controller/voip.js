@@ -92,7 +92,7 @@ function loadPage(page, options) {
 
       document.getElementById("Apply").addEventListener("click", () => {
         if (checkError_show(document.querySelectorAll(".error"))) {
-          Advanced.ALG.EnableSIPALG = enableSIPALG.checked;
+          VoIP.EnableSIPALG = enableSIPALG.checked;
           VoIP.TelephoneNumber = telephoneNumber.value;
           VoIP.RegistarAddress = registarAddress.value;
           VoIP.AuthenticationID = authenticationID.value;
@@ -103,7 +103,21 @@ function loadPage(page, options) {
           VoIP.OutboundProxy = outboundProxy.value;
           VoIP.OutboundProxyPort = outboundProxyPort.value;
           VoIP.Interface = selectElement.value;
-          applyThenStoreToLS("voip-config.html", "Apply", VoIP, Advanced);
+          var cloneData = deepCopyObject(VoIP);
+          var interfaceObj = textContentConverting(selectElement, VoIP.Interface);
+          for (var i = 0; i < Basic.WAN.Interfaces.length; i++) {
+            if (Basic.WAN.Interfaces[i].Name === interfaceObj) {
+              cloneData.Interface = `Device.IP.Interface.${i + 1}`;
+            }
+          }
+          console.log(cloneData);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            VoIP,
+            ""
+          );
         }
       });
 

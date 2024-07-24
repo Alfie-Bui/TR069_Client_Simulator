@@ -20,7 +20,7 @@
     </style>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <title>Broadband Router</title>
+    <title>ACS Virtual Client</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
@@ -134,7 +134,8 @@
     <script src="./js/storage.js"></script>
     <script src="./js/commonFunction.js"></script>
     <script src="./js/controller/wifi.js"></script>
-
+    <script src="./js/service/httpService.js"></script>
+    <script src="./js/service/utils.js"></script>
     <script>
       window.onload = () => {
         checkVersion();
@@ -1064,8 +1065,6 @@
 
             <form
               class="gemtek-card-panel ng-pristine ng-invalid ng-invalid-required ng-valid-pattern"
-              name="DeviceWiFiRadio1X_GTK_VendorWPSDeviceWiFiRadio1X_GTK_VendorWPSDeviceWiFiRadio1X_GTK_VendorWPS_form"
-              name1="Device.WiFi.Radio.1.X_GTK_Vendor.WPS?&amp;Device.WiFi.Radio.1.X_GTK_Vendor.WPS?EndpointPIN,AuthorizedMac,&amp;Device.WiFi.Radio.1.X_GTK_Vendor.WPS?PIN,"
               id="DeviceWiFiRadio1X_GTK_VendorWPSDeviceWiFiRadio1X_GTK_VendorWPSDeviceWiFiRadio1X_GTK_VendorWPS"
             >
               <div>
@@ -1084,10 +1083,6 @@
                       id="WPSPushbutton"
                       class="gemtek-btn-primary"
                       value="WPS Pushbutton"
-                      source="Device.WiFi.Radio.1.X_GTK_Vendor.WPS?"
-                      ng-click="pushbtnclick(&#39;cgi_set&#39;,&#39;Object=Device.WiFi.Radio.1.X_GTK_Vendor.WPS&amp;Operation=Modify&amp;Action=PBC&amp;IfName=selectedVAPInterface()&amp;type=false&#39;,$event)"
-                      formname="DeviceWiFiRadio1X_GTK_VendorWPSDeviceWiFiRadio1X_GTK_VendorWPSDeviceWiFiRadio1X_GTK_VendorWPS"
-                      ng-disabled="wpsDropdownDisabled"
                     />
                   </div>
                 </div>
@@ -1187,15 +1182,9 @@
                         /><label
                           for="PIN"
                           class="active ng-binding"
-                          ng-bind="
-                            &#39;Device.WiFi.Radio.1.X_GTK_Vendor.WPS.PIN Code&#39; | translate
-                        "
                           >PIN Code</label
                         ><span
                           class="error ng-binding ng-hide"
-                          ng-show="DeviceWiFiRadio1X_GTK_VendorWPS_PINresponsestatus"
-                          ng-bind="DeviceWiFiRadio1X_GTK_VendorWPS_PINval |translate
-                        "
                         ></span>
                       </div>
                     </div>
@@ -1206,9 +1195,6 @@
                       id=""
                       class="gemtek-btn-primary"
                       value="Generate new PIN"
-                      source="Device.WiFi.Radio.1.X_GTK_Vendor.WPS?PIN,"
-                      ng-click="makePost(&#39;cgi_set&#39;,&#39;Object=Device.WiFi.Radio.1.X_GTK_Vendor.WPS&amp;Operation=Modify&amp;Action=GeneratePIN&amp;IfName=selectedVAPInterface()&#39;,$event)"
-                      formname="DeviceWiFiRadio1X_GTK_VendorWPSDeviceWiFiRadio1X_GTK_VendorWPSDeviceWiFiRadio1X_GTK_VendorWPS"
                     />
                   </div>
                 </div>
@@ -1234,90 +1220,6 @@
         </footer>
       </div>
       <div id="main-menu-bg"></div>
-    </div>
-
-    <div
-      class="modal fade"
-      id="myModalHorizontal"
-      aria-labelledby="myModalLabel"
-      aria-hidden="true"
-      tabindex="-1"
-      role="dialog"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">×</span>
-            </button>
-            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-          </div>
-
-          <!-- Modal Body -->
-          <div class="modal-body">
-            <form class="form-horizontal ng-pristine ng-valid" role="form">
-              <div class="form-group">
-                <label
-                  class="col-sm-12 col-lg-3 col-md-3 col-xs-12 control-label"
-                  for="Status"
-                  >Progress:</label
-                >
-                <div class="col-sm-12 col-md-6 col-lg-6 col-xs-12">
-                  <div
-                    class="progress-striped active progress"
-                    value=""
-                    type=""
-                  >
-                    <div
-                      class="progress-bar"
-                      role="progressbar"
-                      aria-valuenow=""
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                      aria-valuetext="%"
-                      style="width: 100%"
-                    >
-                      <span class="ng-binding ng-scope"> </span
-                      ><i class="ng-scope ng-hide">!!! Watch out !!!</i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label
-                  class="col-sm-12 col-lg-3 col-md-3 col-xs-12 control-label"
-                  for="Status"
-                  >Status</label
-                >
-                <div class="col-sm-12 col-md-6 col-lg-6 col-xs-12">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="Status"
-                    placeholder="WPS Session Start"
-                  />
-                </div>
-              </div>
-            </form>
-          </div>
-          <!-- Modal Footer -->
-          <div class="modal-footer">
-            <button
-              type="button"
-              data-ng-click="cancelInterval()"
-              data-dismiss="modal"
-              class="btn btn-info"
-            >
-              Abort WPS
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
     <!--Modal End-->
     <!--        <script src="js/Jquery/jquery1.9.1.min.js"></script>-->

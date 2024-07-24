@@ -20,7 +20,7 @@
     </style>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <title>Broadband Router</title>
+    <title>ACS Virtual Client</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
@@ -134,7 +134,8 @@
     <script src="./js/storage.js"></script>
     <script src="./js/commonFunction.js"></script>
     <script src="./js/controller/wifi.js"></script>
-
+    <script src="./js/service/httpService.js"></script>
+    <script src="./js/service/utils.js"></script>
     <script>
       window.onload = () => {
         checkVersion();
@@ -875,12 +876,7 @@
 
       <div id="content-wrapper" style="min-height: 606px">
         <!-- ngView: true -->
-        <div
-          data-ng-view="true"
-          id="dataView"
-          translate-cloak=""
-          class="ng-scope"
-        >
+        <div id="dataView" class="ng-scope">
           <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0"
@@ -967,10 +963,7 @@
             </div>
 
             <div class="subheader">
-              <p
-                ng-bind="&#39;macFiltering5G.headerdescription&#39; | translate"
-                class="ng-binding"
-              >
+              <p class="ng-binding">
                 You can make wireless LAN settings that operate in the 5GHz
                 range. Wi-Fi 5G offers greater coverage and supports legacy
                 devices.
@@ -979,39 +972,24 @@
 
             <div class="panel">
               <!-- ngInclude: 'templates/tabs.html' -->
-              <div
-                <!--
-                如有使用此
-                tabs,
-                請同步
-                menu
-                Controllers
-                第492行的switch--
-              >
+              <div>
                 <ul class="nav nav-tabs gemtek-tab">
-                  <li ng-class='{&#39;active&#39;: currentTab === "adv5_ssid"}'>
+                  <li>
                     <a href="wifi-5G-ssids.html">SSIDs</a>
                   </li>
-                  <li
-                    ng-class='{&#39;active&#39;: currentTab === "wifi5_advanced"}'
-                  >
+                  <li>
                     <a href="wifi-5G-config.html">Configuration</a>
                   </li>
-                  <li ng-class='{&#39;active&#39;: currentTab === "adv5_wps"}'>
+                  <li>
                     <a href="wifi-5G-wps.html">WPS</a>
                   </li>
-                  <li ng-class='{&#39;active&#39;: currentTab === "wds5page"}'>
+                  <li>
                     <a href="wifi-5G-wds.html">WDS</a>
                   </li>
-                  <li
-                    ng-class='{&#39;active&#39;: currentTab === "adv5_macFiltering"}'
-                    class="active"
-                  >
+                  <li class="active">
                     <a href="wifi-5G-mac_filter.html">MAC Filtering</a>
                   </li>
-                  <li
-                    ng-class='{&#39;active&#39;: currentTab === "adv5_statistics"}'
-                  >
+                  <li>
                     <a href="wifi-5G-statistics.html">Statistics</a>
                   </li>
                 </ul>
@@ -1049,9 +1027,9 @@
                             required=""
                             class="ng-pristine ng-valid ng-valid-required ng-touched"
                           >
-                            <option value="0">Disabled</option>
-                            <option value="1">Allow</option>
-                            <option value="2">Deny</option>
+                            <option value="Disabled">Disabled</option>
+                            <option value="Allow">Allow</option>
+                            <option value="Deny">Deny</option>
                           </select>
                         </div>
                       </div>
@@ -1174,90 +1152,6 @@
         </footer>
       </div>
       <div id="main-menu-bg"></div>
-    </div>
-
-    <div
-      class="modal fade"
-      id="myModalHorizontal"
-      aria-labelledby="myModalLabel"
-      aria-hidden="true"
-      tabindex="-1"
-      role="dialog"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">×</span>
-            </button>
-            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-          </div>
-
-          <!-- Modal Body -->
-          <div class="modal-body">
-            <form class="form-horizontal ng-pristine ng-valid" role="form">
-              <div class="form-group">
-                <label
-                  class="col-sm-12 col-lg-3 col-md-3 col-xs-12 control-label"
-                  for="Status"
-                  >Progress:</label
-                >
-                <div class="col-sm-12 col-md-6 col-lg-6 col-xs-12">
-                  <div
-                    class="progress-striped active progress"
-                    value=""
-                    type=""
-                  >
-                    <div
-                      class="progress-bar"
-                      role="progressbar"
-                      aria-valuenow=""
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                      aria-valuetext="%"
-                      style="width: 100%"
-                    >
-                      <span class="ng-binding ng-scope"> </span
-                      ><i class="ng-scope ng-hide">!!! Watch out !!!</i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label
-                  class="col-sm-12 col-lg-3 col-md-3 col-xs-12 control-label"
-                  for="Status"
-                  >Status</label
-                >
-                <div class="col-sm-12 col-md-6 col-lg-6 col-xs-12">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="Status"
-                    placeholder="WPS Session Start"
-                  />
-                </div>
-              </div>
-            </form>
-          </div>
-          <!-- Modal Footer -->
-          <div class="modal-footer">
-            <button
-              type="button"
-              data-ng-click="cancelInterval()"
-              data-dismiss="modal"
-              class="btn btn-info"
-            >
-              Abort WPS
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
     <!--Modal End-->
     <!--        <script src="js/Jquery/jquery1.9.1.min.js"></script>-->

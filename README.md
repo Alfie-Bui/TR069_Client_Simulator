@@ -17,3 +17,8 @@ npm start
 ```
 node server.js
 ```
+
+## HTTPS connection
+Establish HTTPS connection guide
+
+https://docs.google.com/document/d/1AlneHL6l1MLOFiuBhJeBOSu-FhmSvkw-xeSuFpXQIGQ/edit

@@ -45,7 +45,7 @@ function checkVersion() {
  *            Apply : When change the UI event and refresh
  *            Cancel: When reject all change on UI and refresh page
  */
-function applyThenStoreToLS(page, option, change_entity) {
+function applyThenStoreToLS(page, option, change_entity, custom_param) {
   if (option !== "Cancel") {
     var Status = JSON.parse(localStorage.getItem("Status"));
     var Basic = JSON.parse(localStorage.getItem("Basic"));
@@ -54,6 +54,8 @@ function applyThenStoreToLS(page, option, change_entity) {
     var Security = JSON.parse(localStorage.getItem("Security"));
     var Utilities = JSON.parse(localStorage.getItem("Utilities"));
     var VoIP = JSON.parse(localStorage.getItem("VoIP"));
+    var Account = JSON.parse(localStorage.getItem("Account"));
+
     switch (page) {
       case "advanced-alg.html":
         Advanced = change_entity;
@@ -63,6 +65,7 @@ function applyThenStoreToLS(page, option, change_entity) {
         break;
       case "advanced-device_management.html":
         Advanced = change_entity;
+        Advanced.DeviceManagement.ConnectionReqURL = custom_param || "";
         break;
       case "advanced-dmz.html":
         Advanced = change_entity;
@@ -180,17 +183,18 @@ function applyThenStoreToLS(page, option, change_entity) {
         Utilities = change_entity;
         break;
       case "utilities-system-user_mgnt-edit.html":
-        Utilities = change_entity;
+        Account = change_entity;
         break;
       case "utilities-system-user_mgnt.html":
-        Utilities = change_entity;
+        Account = change_entity;
         break;
       case "utilities-update_fw.html":
         Utilities = change_entity;
         break;
       case "voip-config.html":
+        Advanced.ALG.EnableSIPALG = change_entity.EnableSIPALG;
+        delete change_entity.EnableSIPALG;
         VoIP = change_entity;
-        Advanced = arguments[3];
         break;
       case "wifi-2_4G-config.html":
         Wifi = change_entity;
@@ -247,11 +251,11 @@ function applyThenStoreToLS(page, option, change_entity) {
     localStorage.setItem("Security", JSON.stringify(Security));
     localStorage.setItem("Utilities", JSON.stringify(Utilities));
     localStorage.setItem("VoIP", JSON.stringify(VoIP));
+    localStorage.setItem("Account", JSON.stringify(Account));
     console.log("Load data into Local Storage success");
-  } else {
-    // redirect to next page or reload current page
-    window.location.href = page;
   }
+  // redirect to next page or reload current page
+  window.location.href = page;
 }
 
 function manageJSONData(keyJSON, jsonPath, data, option) {

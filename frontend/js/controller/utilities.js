@@ -191,10 +191,16 @@ function loadPage(page, options) {
             );
           }
         });
-        // store data to DB
-        applyThenStoreToLS(page, "Apply", Utilities);
-        // back to ipv4 static routing table
-        window.location.href = "utilities-system-log_rule.html";
+        var cloneData = deepCopyObject(Utilities.System.SystemLogRule);
+        console.log(cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.MODIFY,
+          cloneData,
+          Utilities,
+          "",
+          "utilities-system-log_rule.html"
+        );
       });
 
       break;
@@ -217,6 +223,8 @@ function loadPage(page, options) {
     case "utilities-system-time.html":
       console.log(`Load ${page}`, Utilities.SystemTime);
 
+      var timeZoneLocation = document.getElementById("X_GTK_TimeZoneLocation");
+      var formattedTime;
       document.querySelector("#NTPServer1").value =
         Utilities.SystemTime.NTPServer1;
       document.querySelector("#NTPServer2").value =
@@ -247,10 +255,18 @@ function loadPage(page, options) {
         ).value;
         Utilities.SystemTime.DeviceTime_Enable =
           document.querySelector("#DeviceTime_Enable").checked;
-        // store data to DB
-        applyThenStoreToLS(page, "Apply", Utilities);
-        // back to ipv4 static routing table
-        window.location.href = "utilities-system-time.html";
+
+        var cloneData = deepCopyObject(Utilities.SystemTime);
+        cloneData.X_GTK_TimeZoneLocation = textContentConverting(timeZoneLocation, Utilities.SystemTime.X_GTK_TimeZoneLocation);
+        cloneData.formattedTime = formattedTime;
+        console.log(cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.MODIFY,
+          cloneData,
+          Utilities,
+          "",
+        );
       };
       document.querySelector("#Cancel").onclick = function () {
         window.location.href = "utilities-system-time.html";
@@ -264,7 +280,7 @@ function loadPage(page, options) {
         var hours = ("0" + currentTime.getHours()).slice(-2);
         var minutes = ("0" + currentTime.getMinutes()).slice(-2);
         var seconds = ("0" + currentTime.getSeconds()).slice(-2);
-        var formattedTime =
+        formattedTime =
           year +
           "-" +
           month +
@@ -362,11 +378,17 @@ function loadPage(page, options) {
         Account.Password = document.querySelector(
           "#DeviceUsersUser2Password"
         ).value;
-        // store data to DB
-        localStorage.setItem("Account", JSON.stringify(Account));
-        window.location.href = "utilities-system-user_mgnt.html";
-      };
-
+        var cloneData = deepCopyObject(Account);
+        console.log(cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.MODIFY,
+          cloneData,
+          Account,
+          "",
+          "utilities-system-user_mgnt.html"
+        );
+        }
       break;
     case "utilities-system-user_mgnt.html":
       break;

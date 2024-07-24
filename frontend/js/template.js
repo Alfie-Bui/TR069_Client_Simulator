@@ -5,8 +5,8 @@
  */
 
 const SIMULATOR_VERSION =
-  "GemtekACSClient_t01_04Apr24"; /* Release version and tag tracking */
-  
+  "GemtekACSClient_t03_20Jun24"; /* Release version and tag tracking */
+
 /**
  *
  * ===== Template data (at init it will load template data to local store then fill in HTML file)
@@ -86,10 +86,7 @@ const template = {
         BeginAddress: "192.168.1.2",
         EndAddress: "192.168.1.254",
         LeaseTime: 1,
-        IPAddressReservation: [
-          { MAC: "12:12:12:12:12:12", IP: "192.168.1.2" },
-          { MAC: "13:13:13:13:13:13", IP: "192.168.1.3" },
-        ],
+        IPAddressReservation: [],
       },
       IPv6Configuration: {
         Enable: true,
@@ -127,15 +124,15 @@ const template = {
           Configuration: {
             EnableRadio: true,
             AutoChannel: true,
-            OperationMode: 4,
+            OperationMode: "bgnax",
             Channel: 1,
-            ChannelBandwidth: 2,
+            ChannelBandwidth: "Auto",
             AdvertiseSSID: true,
             WMM: true,
             WMMPS: true,
             APIsolation: false,
             SSID: "GEMTEK",
-            SecurityType: 2,
+            SecurityType: "WPA2-Personal",
             Passphrase: "wifi_password",
             DTIM: 2,
             BeaconInterval: 100,
@@ -143,11 +140,11 @@ const template = {
             EnableCoExistence: true,
           },
           WDS: {
-            WDSMode: 0,
+            WDSMode: "Disabled",
             MACAddress: [],
           },
           MACFiltering: {
-            ACLMode: 0,
+            ACLMode: "Disabled",
             MACAddressFilter: [],
           },
         },
@@ -164,27 +161,26 @@ const template = {
             EnableRadio: true,
             AutoChannel: true,
             UseDFSChannels: true,
-            OperationMode: 1,
+            OperationMode: "a",
             Channel: 36,
-            ChannelBandwidth: 2,
+            ChannelBandwidth: 4,
             AdvertiseSSID: true,
             WMM: true,
             WMMPS: true,
             APIsolation: false,
             SSID: "GEMTEK5G",
-            SecurityType: 3,
+            SecurityType: "WPA2-Personal",
             Passphrase: "wifi_password2",
             DTIM: 2,
             BeaconInterval: 100,
             PowerScale: 12,
-            DFS: true,
           },
           WDS: {
-            WDSMode: 0,
+            WDSMode: "Disabled",
             MACAddress: [],
           },
           MACFiltering: {
-            ACLMode: 0,
+            ACLMode: "Disabled",
             MACAddressFilter: [],
           },
         },
@@ -224,6 +220,7 @@ const template = {
       ACSURL: "http://192.168.99.100:7547",
       ACSUsername: "admin",
       ACSPassword: "admin",
+      ConnectionReqURL: "",
       ConnectionReqUsername: "admin",
       ConnectionReqPasword: "admin",
       EnaPerodic: true,
@@ -253,18 +250,20 @@ const template = {
     },
     StaticRouting: {
       StaticRoutingConfiguration: {
-        NumberOfEntries: "1",
+        NumberOfEntries: "0",
         0: {
-          DestIPAddress: "8.8.8.8",
-          DestSubnetMask: "255.255.255.255",
-          GatewayIPAddress: "192.168.1.1",
+          DestIPAddress: "",
+          DestSubnetMask: "",
+          GatewayIPAddress: "",
+          Interface: "",
         },
       },
       IPv6StaticRoutingConfiguration: {
-        NumberOfEntries: "1",
+        NumberOfEntries: "0",
         0: {
-          DestIPPrefix: "2001:4860:4860::8888",
-          NextHop: "FE80::96FF:3CFF:FEDD:AE20",
+          DestIPPrefix: "",
+          NextHop: "",
+          Interface: "",
         },
       },
     },

@@ -36,12 +36,42 @@ function loadPage(page, options) {
     return true;
   }
 
+  function updateWifiConfigurationProperty(
+    selectElement,
+    propertyName,
+    cloneData
+  ) {
+    var selectedIndex = selectElement.selectedIndex;
+    var selectedOption = selectElement.options[selectedIndex];
+    var selectedOptionText = selectedOption.textContent.trim();
+    if (cloneData[0] && cloneData[0].Configuration) {
+      cloneData[0].Configuration[propertyName] = selectedOptionText;
+    }
+  }
+
+  function updateWifiModeProperty(
+    selectElements,
+    cloneData,
+    modeType,
+    propertyPath
+  ) {
+    cloneData.forEach((dataItem, index) => {
+      var selectedIndex = dataItem[modeType][propertyPath];
+      var selectedOption = selectElements.options[selectedIndex];
+      var selectedOptionText = selectedOption.textContent.trim();
+
+      if (dataItem && dataItem[modeType]) {
+        dataItem[modeType][propertyPath] = selectedOptionText;
+        console.log(selectedOptionText);
+      }
+    });
+  }
+
   switch (page) {
     case "wifi-2_4G-config.html":
       console.log(`Load ${page}`, Wifi["2.4G"]);
 
-      var filledData = Wifi["2.4G"].SSIDs[0];
-
+      var filledData = Wifi["2.4G"].SSIDs;
       var enable2_4G = document.getElementById("Enable");
       var autoChannel = document.getElementById("AutoChannelEnable");
       var operationModeSelect = document.getElementById("OperatingStandards");
@@ -85,7 +115,7 @@ function loadPage(page, options) {
               .getElementById("panel_passphrase")
               .classList.add("ng-hide");
             break;
-          case "4": // WEP-64
+          case "WEP-64": // WEP-64
             document
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -107,7 +137,7 @@ function loadPage(page, options) {
               document.getElementById("upLimit_pass_error")
             );
             break;
-          case "5": // WEP-128
+          case "WEP-128": // WEP-128
             document
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -129,7 +159,7 @@ function loadPage(page, options) {
               document.getElementById("upLimit_pass_error")
             );
             break;
-          case "6": // WPA3-Personal
+          case "WPA3-Personal": // WPA3-Personal
             document
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -145,7 +175,7 @@ function loadPage(page, options) {
               document.getElementById("upLimit_pass_error")
             );
             break;
-          case "7": // WPA2-WPA3-Personal
+          case "WPA2-WPA3-Personal": // WPA2-WPA3-Personal
             document
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -188,8 +218,8 @@ function loadPage(page, options) {
 
         // adapt with others
         if (
-          operationModeSelect.value == "3" ||
-          operationModeSelect.value == "4"
+          operationModeSelect.value == "bgn" ||
+          operationModeSelect.value == "bgnax"
         ) {
           // 3: bgn, 4: bgnax
           document
@@ -323,47 +353,47 @@ function loadPage(page, options) {
       };
 
       var fillData = () => {
-        console.log(`Fill data into Configuration: ${filledData}`);
+        console.log(`Fill data into Configuration: ${filledData[0]}`);
 
-        filledData.Configuration.EnableRadio
+        filledData[0].Configuration.EnableRadio
           ? enable2_4G.classList.add("checked")
           : enable2_4G.classList.remove("checked");
-        filledData.Configuration.AutoChannel
+        filledData[0].Configuration.AutoChannel
           ? autoChannel.classList.add("checked")
           : autoChannel.classList.remove("checked");
-        operationModeSelect.value = filledData.Configuration.OperationMode;
+        operationModeSelect.value = filledData[0].Configuration.OperationMode;
         if (autoChannel.classList.contains("checked")) {
           channelSelect.disabled = true;
           channelSelect.value = "?";
         } else {
-          channelSelect.value = filledData.Configuration.Channel;
+          channelSelect.value = filledData[0].Configuration.Channel;
           channelSelect.disabled = false;
         }
-        channelBWSelect.value = filledData.Configuration.ChannelBandwidth;
-        filledData.Configuration.AdvertiseSSID
+        channelBWSelect.value = filledData[0].Configuration.ChannelBandwidth;
+        filledData[0].Configuration.AdvertiseSSID
           ? advertiseSSID.classList.add("checked")
           : advertiseSSID.classList.remove("checked");
-        filledData.Configuration.WMM
+        filledData[0].Configuration.WMM
           ? wmm.classList.add("checked")
           : wmm.classList.remove("checked");
         if (wmm.classList.contains("checked")) {
           document.getElementById("wmm-ps-show").classList.remove("ng-hide");
-          filledData.Configuration.WMMPS
+          filledData[0].Configuration.WMMPS
             ? wmmps.classList.add("checked")
             : wmmps.classList.remove("checked");
         } else {
           document.getElementById("wmm-ps-show").classList.add("ng-hide");
         }
-        filledData.Configuration.APIsolation
+        filledData[0].Configuration.APIsolation
           ? apIso.classList.add("checked")
           : apIso.classList.remove("checked");
-        ssid.value = filledData.Configuration.SSID;
-        securityTypeSelect.value = filledData.Configuration.SecurityType;
-        password.value = filledData.Configuration.Passphrase;
-        dtim.value = filledData.Configuration.DTIM;
-        beaconInterval.value = filledData.Configuration.BeaconInterval;
-        powerScale.value = filledData.Configuration.PowerScale;
-        filledData.Configuration.EnableCoExistence
+        ssid.value = filledData[0].Configuration.SSID;
+        securityTypeSelect.value = filledData[0].Configuration.SecurityType;
+        password.value = filledData[0].Configuration.Passphrase;
+        dtim.value = filledData[0].Configuration.DTIM;
+        beaconInterval.value = filledData[0].Configuration.BeaconInterval;
+        powerScale.value = filledData[0].Configuration.PowerScale;
+        filledData[0].Configuration.EnableCoExistence
           ? coEx.classList.add("checked")
           : coEx.classList.remove("checked");
 
@@ -379,30 +409,44 @@ function loadPage(page, options) {
       // apply and cancel event
       document.getElementById("Apply").addEventListener("click", () => {
         if (checkError_show(document.querySelectorAll(".error"))) {
-          filledData.Configuration.EnableRadio =
-            enable2_4G.classList.contains("checked");
-          filledData.Configuration.AutoChannel =
-            autoChannel.classList.contains("checked");
-          filledData.Configuration.OperationMode = operationModeSelect.value;
-          filledData.Configuration.Channel = channelSelect.value;
-          filledData.Configuration.ChannelBandwidth = channelBWSelect.value;
-          filledData.Configuration.AdvertiseSSID =
-            advertiseSSID.classList.contains("checked");
-          filledData.Configuration.WMM = wmm.classList.contains("checked");
-          filledData.Configuration.WMMPS = wmmps.classList.contains("checked");
-          filledData.Configuration.APIsolation =
-            apIso.classList.contains("checked");
-          filledData.Configuration.SSID = ssid.value;
-          filledData.Configuration.SecurityType = securityTypeSelect.value;
-          filledData.Configuration.Passphrase = password.value;
-          filledData.Configuration.DTIM = dtim.value;
-          filledData.Configuration.BeaconInterval = beaconInterval.value;
-          filledData.Configuration.PowerScale = powerScale.value;
-          filledData.Configuration.EnableCoExistence =
-            coEx.classList.contains("checked");
+          for (var wifiConfig of filledData) {
+            wifiConfig.Configuration.EnableRadio =
+              enable2_4G.classList.contains("checked");
+            wifiConfig.Configuration.AutoChannel =
+              autoChannel.classList.contains("checked");
+            wifiConfig.Configuration.OperationMode = operationModeSelect.value;
+            wifiConfig.Configuration.Channel = channelSelect.value;
+            wifiConfig.Configuration.ChannelBandwidth = channelBWSelect.value;
+            wifiConfig.Configuration.AdvertiseSSID =
+              advertiseSSID.classList.contains("checked");
+            wifiConfig.Configuration.WMM = wmm.classList.contains("checked");
+            wifiConfig.Configuration.WMMPS =
+              wmmps.classList.contains("checked");
+            wifiConfig.Configuration.APIsolation =
+              apIso.classList.contains("checked");
+            wifiConfig.Configuration.DTIM = dtim.value;
+            wifiConfig.Configuration.BeaconInterval = beaconInterval.value;
+            wifiConfig.Configuration.PowerScale = powerScale.value;
+            wifiConfig.Configuration.EnableCoExistence =
+              coEx.classList.contains("checked");
+            wifiConfig.Configuration.OperationMode = operationModeSelect.value;
+            wifiConfig.Configuration.ChannelBandwidth = channelBWSelect.value;
+            wifiConfig.Configuration.SecurityType = securityTypeSelect.value;
+          }
 
-          console.log(`Store data: ${Wifi["2.4G"].SSIDs[0]}`);
-          applyThenStoreToLS("wifi-2_4G-config.html", "Apply", Wifi);
+          filledData[0].Configuration.SSID = ssid.value;
+          filledData[0].Configuration.SecurityType = securityTypeSelect.value;
+          filledData[0].Configuration.Passphrase = password.value;
+
+          var cloneData = deepCopyObject(Wifi["2.4G"].SSIDs);
+          console.log(cloneData);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Wifi,
+            ""
+          );
         } else {
           console.log(`Apply fail`);
         }
@@ -509,7 +553,7 @@ function loadPage(page, options) {
         });
 
         acl_mode_select.addEventListener("change", () => {
-          if (acl_mode_select.value != "0") {
+          if (acl_mode_select.value != "Disabled") {
             if (tbody.children.length === 0) {
               alertDialogHandle("Please add MAC Address");
             }
@@ -523,10 +567,12 @@ function loadPage(page, options) {
 
       initEvent();
       fillData();
-
       // Apply and Cancel
       applyBtn.addEventListener("click", () => {
-        if (acl_mode_select.value != "0" && tbody.children.length === 0) {
+        if (
+          acl_mode_select.value != "Disabled" &&
+          tbody.children.length === 0
+        ) {
           alertDialogHandle("Please add MAC Address");
           // escape event
           return;
@@ -545,7 +591,15 @@ function loadPage(page, options) {
             ].MACFiltering.MACAddressFilter.push(elem.value);
           }
 
-          applyThenStoreToLS("wifi-2_4G-mac_filtering.html", "Apply", Wifi);
+          var cloneData = deepCopyObject(Wifi["2.4G"].SSIDs);
+          console.log(cloneData);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Wifi,
+            ""
+          );
         } else {
           console.log(`Apply fail`);
         }
@@ -558,6 +612,7 @@ function loadPage(page, options) {
     case "wifi-2_4G-ssids.html":
       console.log(`Load ${page}`, Wifi["2.4G"]);
 
+      var oldLength = Wifi["2.4G"].SSIDs.length;
       var addWifiBtn = document.getElementById("AddBtn");
       var tableHeader = document.getElementById("headerTable");
       var tbody = document.getElementById("bodyData");
@@ -610,7 +665,7 @@ function loadPage(page, options) {
               window.alert("WPS function only supports WPA and WPA2 mode.");
 
             break;
-          case "4": // WEP-64
+          case "WEP-64": // WEP-64
             current_parent
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -636,7 +691,7 @@ function loadPage(page, options) {
               current_parent.getElementById("upLimit_pass_error")
             );
             break;
-          case "5": // WEP-128
+          case "WEP-128": // WEP-128
             current_parent
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -662,7 +717,7 @@ function loadPage(page, options) {
               current_parent.getElementById("upLimit_pass_error")
             );
             break;
-          case "6": // WPA3-Personal
+          case "WPA3-Personal": // WPA3-Personal
             current_parent
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -682,7 +737,7 @@ function loadPage(page, options) {
               current_parent.getElementById("upLimit_pass_error")
             );
             break;
-          case "7": // WPA2-WPA3-Personal
+          case "WPA2-WPA3-Personal": // WPA2-WPA3-Personal
             current_parent
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -952,10 +1007,10 @@ function loadPage(page, options) {
         security_type_select.value = ssid_info.Configuration.SecurityType;
         if (
           security_type_select.value === "None" ||
-          security_type_select.value == 4 ||
-          security_type_select.value == 5 ||
-          security_type_select.value == 6 ||
-          security_type_select.value == 7
+          security_type_select.value == "WEP-64" ||
+          security_type_select.value == "WEP-128" ||
+          security_type_select.value == "WPA3-Personal" ||
+          security_type_select.value == "WPA2-WPA3-Personal"
         ) {
           wps_enable.disabled = true;
         } else {
@@ -1007,17 +1062,13 @@ function loadPage(page, options) {
               currentRow.parentElement.children
             ).indexOf(currentRow);
             wifiInfoBuffer.splice(currentRowIndex, 1);
-            console.log(
-              `Remove Wifi --> Wifi now (length ${wifiInfoBuffer.length
-              }): ${JSON.stringify(wifiInfoBuffer)}`
-            );
 
             // remove if detail panel on it
             if (
               currentRow.nextElementSibling !== null &&
               currentRow.nextElementSibling !== undefined &&
               currentRow.nextElementSibling ===
-              document.getElementById("detail_panel")
+                document.getElementById("detail_panel")
             ) {
               detail_on_show = false;
               document.getElementById("detail_panel").remove();
@@ -1072,30 +1123,13 @@ function loadPage(page, options) {
           RekeyInterval: "3600",
           Maxconnected: "255",
           BridgeName: "br-lan",
-          Configuration: {
-            EnableRadio: false,
-            AutoChannel: true,
-            OperationMode: 4,
-            Channel: 0,
-            ChannelBandwidth: 2,
-            AdvertiseSSID: true,
-            WMM: true,
-            WMMPS: true,
-            APIsolation: false,
-            SSID: "",
-            SecurityType: 0,
-            Passphrase: "password",
-            DTIM: "",
-            BeaconInterval: "",
-            PowerScale: "",
-            EnableCoExistence: false,
-          },
+          Configuration: deepCopyObject(wifiInfoBuffer[0].Configuration),
           WDS: {
-            WDSMode: 0,
+            WDSMode: "Disabled",
             MACAddress: [],
           },
           MACFiltering: {
-            ACLMode: 1,
+            ACLMode: "Disabled",
             MACAddressFilter: [],
           },
         };
@@ -1133,10 +1167,10 @@ function loadPage(page, options) {
           checkError_selectField(security_type, security_type_error);
           if (
             security_type.value == "None" ||
-            security_type.value == 4 ||
-            security_type.value == 5 ||
-            security_type.value == 6 ||
-            security_type.value == 7
+            security_type.value == "WEP-64" ||
+            security_type.value == "WEP-128" ||
+            security_type.value == "WPA3-Personal" ||
+            security_type.value == "WPA2-WPA3-Personal"
           ) {
             wps.disabled = true;
             wps.checked = false;
@@ -1241,12 +1275,26 @@ function loadPage(page, options) {
               document.getElementById("X_LANTIQ_COM_Vendor_BridgeName").value;
           }
 
-          console.log(
-            `Apply accept, data Wifi at last: ${JSON.stringify(
-              Wifi["2.4G"].SSIDs
-            )}`
+          // create body for post request
+          var cloneData = deepCopyObject(Wifi["2.4G"].SSIDs);
+          var subOption = oldLength;
+          listSecurityType.forEach(function (selectElement, index) {
+            var selectedIndex = selectElement.selectedIndex;
+            var selectedOption = selectElement.options[selectedIndex];
+            var selectedOptionText = selectedOption.textContent.trim();
+            if (cloneData[index] && cloneData[index].Configuration) {
+              cloneData[index].Configuration.SecurityType = selectedOptionText;
+            }
+          });
+          console.log(cloneData);
+          // connect ACS server
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.COMPLEX,
+            cloneData,
+            Wifi,
+            subOption
           );
-          applyThenStoreToLS("wifi-2_4G-ssids.html", "Apply", Wifi);
         }
       });
 
@@ -1331,7 +1379,7 @@ function loadPage(page, options) {
       };
 
       var adaptWdsMode = () => {
-        if (wds_select_mode.value == "1") {
+        if (wds_select_mode.value == "Hybrid") {
           // Hybrid --> load MAC Address too
           hybrid_mode_panel.classList.remove("ng-hide");
           add_btn.classList.remove("ng-hide");
@@ -1449,7 +1497,15 @@ function loadPage(page, options) {
           }
           // }
 
-          applyThenStoreToLS("wifi-2_4G-wds.html", "Apply", Wifi);
+          var cloneData = deepCopyObject(Wifi["2.4G"].SSIDs);
+
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Wifi,
+            ""
+          );
         } else {
           console.log("Apply fail");
         }
@@ -1520,8 +1576,7 @@ function loadPage(page, options) {
     case "wifi-5G-config.html":
       console.log(`Load ${page}`, Wifi["5G"]);
 
-      var filledData = Wifi["5G"].SSIDs[0];
-
+      var filledData = Wifi["5G"].SSIDs;
       var enable5G = document.getElementById("Enable");
       var autoChannel = document.getElementById("AutoChannelEnable");
       var useDFSChannel = document.getElementById("IEEE80211hEnabled");
@@ -1530,6 +1585,8 @@ function loadPage(page, options) {
       var channelBWSelect = document.getElementById(
         "OperatingChannelBandwidth"
       );
+      const avaiBW5G = ["20MHz", "40MHz", "80MHz", "160MHz", "Auto"];
+
       var advertiseSSID = document.getElementById("SSIDAdvertisementEnabled");
       var wmm = document.getElementById("WMMCapability");
       var wmmps = document.getElementById("UAPSDEnable");
@@ -1568,7 +1625,7 @@ function loadPage(page, options) {
               .getElementById("panel_passphrase")
               .classList.add("ng-hide");
             break;
-          case "4": // WEP-64
+          case "WEP-64": // WEP-64
             document
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -1590,7 +1647,7 @@ function loadPage(page, options) {
               document.getElementById("upLimit_pass_error")
             );
             break;
-          case "5": // WEP-128
+          case "WEP-128": // WEP-128
             document
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -1612,7 +1669,7 @@ function loadPage(page, options) {
               document.getElementById("upLimit_pass_error")
             );
             break;
-          case "6": // WPA3-Personal
+          case "WPA3-Personal": // WPA3-Personal
             document
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -1628,7 +1685,7 @@ function loadPage(page, options) {
               document.getElementById("upLimit_pass_error")
             );
             break;
-          case "7": // WPA2-WPA3-Personal
+          case "WPA2-WPA3-Personal": // WPA2-WPA3-Personal
             document
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -1663,7 +1720,6 @@ function loadPage(page, options) {
         }
       };
 
-      const avaiBW = ["20MHz", "40MHz", "80MHz", "160MHz", "Auto"];
       var adaptOperationMode = () => {
         checkError_selectField(
           operationModeSelect,
@@ -1676,36 +1732,36 @@ function loadPage(page, options) {
         }
 
         // adapt with others
-
-        if (operationModeSelect.value == "1") {
+        if (operationModeSelect.value == "a") {
           // 1: a
           document.getElementById("channel_bw_select").classList.add("ng-hide");
           document.getElementById("select_bw_error").classList.add("ng-hide");
-        } else if (operationModeSelect.value == "2") {
+          return;
+        } else if (operationModeSelect.value == "an") {
           // 2: an, 3: anac, 4: anacax
           for (var i = 0; i < 2; i++) {
             // in an mode, just have 20MHz and 40MHz & Auto
             var optionElement = document.createElement("option");
             optionElement.value = i; // as value, corresponds to index of itself in SSIDs array
-            optionElement.label = avaiBW[i];
-            optionElement.textContent = avaiBW[i];
+            optionElement.label = avaiBW5G[i];
+            optionElement.textContent = avaiBW5G[i];
             channelBWSelect.appendChild(optionElement);
           }
           var optionElement = document.createElement("option");
-          optionElement.value = avaiBW.length - 1; // as value, corresponds to index of itself in SSIDs array
-          optionElement.label = avaiBW[avaiBW.length - 1];
-          optionElement.textContent = avaiBW[avaiBW.length - 1];
+          optionElement.value = avaiBW5G.length - 1; // as value, corresponds to index of itself in SSIDs array
+          optionElement.label = avaiBW5G[avaiBW5G.length - 1];
+          optionElement.textContent = avaiBW5G[avaiBW5G.length - 1];
           channelBWSelect.appendChild(optionElement);
         } else {
-          for (var i = 0; i < avaiBW.length; i++) {
+          for (var i = 0; i < avaiBW5G.length; i++) {
             var optionElement = document.createElement("option");
             optionElement.value = i; // as value, corresponds to index of itself in SSIDs array
-            optionElement.label = avaiBW[i];
-            optionElement.textContent = avaiBW[i];
+            optionElement.label = avaiBW5G[i];
+            optionElement.textContent = avaiBW5G[i];
             channelBWSelect.appendChild(optionElement);
           }
         }
-        channelBWSelect.value = filledData.Configuration.ChannelBandwidth;
+        channelBWSelect.value = filledData[0].Configuration.ChannelBandwidth;
         document
           .getElementById("channel_bw_select")
           .classList.remove("ng-hide");
@@ -1718,6 +1774,7 @@ function loadPage(page, options) {
       var initEvent = () => {
         useDFSChannel.addEventListener("click", () => {
           useDFSChannel.classList.toggle("checked");
+          dfsEna.classList.toggle("checked");
         });
 
         enable5G.addEventListener("click", () => {
@@ -1834,58 +1891,60 @@ function loadPage(page, options) {
 
         dfsEna.addEventListener("click", () => {
           dfsEna.classList.toggle("checked");
+          useDFSChannel.classList.toggle("checked");
         });
       };
 
       var fillData = () => {
-        console.log(`Fill data into Configuration: ${filledData}`);
+        console.log(`Fill data into Configuration: ${filledData[0]}`);
 
-        filledData.Configuration.EnableRadio
+        filledData[0].Configuration.EnableRadio
           ? enable5G.classList.add("checked")
           : enable5G.classList.remove("checked");
-        filledData.Configuration.AutoChannel
+        filledData[0].Configuration.AutoChannel
           ? autoChannel.classList.add("checked")
           : autoChannel.classList.remove("checked");
-        filledData.Configuration.UseDFSChannels
-          ? useDFSChannel.classList.add("checked")
-          : useDFSChannel.classList.remove("checked");
+        if (filledData[0].Configuration.UseDFSChannels) {
+          dfsEna.classList.add("checked");
+          useDFSChannel.classList.add("checked");
+        } else {
+          dfsEna.classList.remove("checked");
+          useDFSChannel.classList.remove("checked");
+        }
 
-        operationModeSelect.value = filledData.Configuration.OperationMode;
+        operationModeSelect.value = filledData[0].Configuration.OperationMode;
 
         if (autoChannel.classList.contains("checked")) {
           channelSelect.disabled = true;
           channelSelect.value = "?";
         } else {
-          channelSelect.value = filledData.Configuration.Channel;
+          channelSelect.value = filledData[0].Configuration.Channel;
           channelSelect.disabled = false;
         }
 
-        filledData.Configuration.AdvertiseSSID
+        filledData[0].Configuration.AdvertiseSSID
           ? advertiseSSID.classList.add("checked")
           : advertiseSSID.classList.remove("checked");
-        filledData.Configuration.WMM
+        filledData[0].Configuration.WMM
           ? wmm.classList.add("checked")
           : wmm.classList.remove("checked");
         if (wmm.classList.contains("checked")) {
           document.getElementById("wmm-ps-show").classList.remove("ng-hide");
-          filledData.Configuration.WMMPS
+          filledData[0].Configuration.WMMPS
             ? wmmps.classList.add("checked")
             : wmmps.classList.remove("checked");
         } else {
           document.getElementById("wmm-ps-show").classList.add("ng-hide");
         }
-        filledData.Configuration.APIsolation
+        filledData[0].Configuration.APIsolation
           ? apIso.classList.add("checked")
           : apIso.classList.remove("checked");
-        ssid.value = filledData.Configuration.SSID;
-        securityTypeSelect.value = filledData.Configuration.SecurityType;
-        password.value = filledData.Configuration.Passphrase;
-        dtim.value = filledData.Configuration.DTIM;
-        beaconInterval.value = filledData.Configuration.BeaconInterval;
-        powerScale.value = filledData.Configuration.PowerScale;
-        filledData.Configuration.DFS
-          ? dfsEna.classList.add("checked")
-          : dfsEna.classList.remove("checked");
+        ssid.value = filledData[0].Configuration.SSID;
+        securityTypeSelect.value = filledData[0].Configuration.SecurityType;
+        password.value = filledData[0].Configuration.Passphrase;
+        dtim.value = filledData[0].Configuration.DTIM;
+        beaconInterval.value = filledData[0].Configuration.BeaconInterval;
+        powerScale.value = filledData[0].Configuration.PowerScale;
 
         adaptOperationMode();
         check_security_type();
@@ -1899,31 +1958,44 @@ function loadPage(page, options) {
       // apply and cancel event
       document.getElementById("Apply").addEventListener("click", () => {
         if (checkError_show(document.querySelectorAll(".error"))) {
-          filledData.Configuration.EnableRadio =
-            enable5G.classList.contains("checked");
-          filledData.Configuration.AutoChannel =
-            autoChannel.classList.contains("checked");
-          filledData.Configuration.UseDFSChannels =
-            useDFSChannel.classList.contains("checked");
-          filledData.Configuration.OperationMode = operationModeSelect.value;
-          filledData.Configuration.Channel = channelSelect.value;
-          filledData.Configuration.ChannelBandwidth = channelBWSelect.value;
-          filledData.Configuration.AdvertiseSSID =
-            advertiseSSID.classList.contains("checked");
-          filledData.Configuration.WMM = wmm.classList.contains("checked");
-          filledData.Configuration.WMMPS = wmmps.classList.contains("checked");
-          filledData.Configuration.APIsolation =
-            apIso.classList.contains("checked");
-          filledData.Configuration.SSID = ssid.value;
-          filledData.Configuration.SecurityType = securityTypeSelect.value;
-          filledData.Configuration.Passphrase = password.value;
-          filledData.Configuration.DTIM = dtim.value;
-          filledData.Configuration.BeaconInterval = beaconInterval.value;
-          filledData.Configuration.PowerScale = powerScale.value;
-          filledData.Configuration.DFS = dfsEna.classList.contains("checked");
+          for (var wifiConfig of filledData) {
+            wifiConfig.Configuration.EnableRadio =
+              enable5G.classList.contains("checked");
+            wifiConfig.Configuration.AutoChannel =
+              autoChannel.classList.contains("checked");
+            wifiConfig.Configuration.UseDFSChannels =
+              useDFSChannel.classList.contains("checked");
+            wifiConfig.Configuration.OperationMode = operationModeSelect.value;
+            wifiConfig.Configuration.Channel = channelSelect.value;
+            wifiConfig.Configuration.ChannelBandwidth =
+              avaiBW5G[parseInt(channelBWSelect.value)];
+            wifiConfig.Configuration.AdvertiseSSID =
+              advertiseSSID.classList.contains("checked");
+            wifiConfig.Configuration.WMM = wmm.classList.contains("checked");
+            wifiConfig.Configuration.WMMPS =
+              wmmps.classList.contains("checked");
+            wifiConfig.Configuration.APIsolation =
+              apIso.classList.contains("checked");
+            wifiConfig.Configuration.DTIM = dtim.value;
+            wifiConfig.Configuration.BeaconInterval = beaconInterval.value;
+            wifiConfig.Configuration.PowerScale = powerScale.value;
+            wifiConfig.Configuration.OperationMode = operationModeSelect.value;
+            wifiConfig.Configuration.ChannelBandwidth = channelBWSelect.value;
+            wifiConfig.Configuration.SecurityType = securityTypeSelect.value;
+          }
+          filledData[0].Configuration.SSID = ssid.value;
+          filledData[0].Configuration.SecurityType = securityTypeSelect.value;
+          filledData[0].Configuration.Passphrase = password.value;
 
-          console.log(`Store data: ${Wifi["5G"].SSIDs[0]}`);
-          applyThenStoreToLS("wifi-5G-config.html", "Apply", Wifi);
+          var cloneData = deepCopyObject(Wifi["5G"].SSIDs);
+          console.log(cloneData);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Wifi,
+            ""
+          );
         } else {
           console.log(`Apply fail`);
         }
@@ -1980,7 +2052,10 @@ function loadPage(page, options) {
         });
 
         deleteBtn.addEventListener("click", () => {
-          if (acl_mode_select.value != "0" && tbody.children.length <= 1) {
+          if (
+            acl_mode_select.value != "Disabled" &&
+            tbody.children.length <= 1
+          ) {
             alertDialogHandle("Keep at least one MAC address");
           } else {
             deleteDialogHandle(
@@ -2030,7 +2105,7 @@ function loadPage(page, options) {
         });
 
         acl_mode_select.addEventListener("change", () => {
-          if (acl_mode_select.value != "0") {
+          if (acl_mode_select.value != "Disabled") {
             if (tbody.children.length === 0) {
               alertDialogHandle("Please add MAC Address");
             }
@@ -2047,7 +2122,10 @@ function loadPage(page, options) {
 
       // Apply and Cancel
       applyBtn.addEventListener("click", () => {
-        if (acl_mode_select.value != "0" && tbody.children.length === 0) {
+        if (
+          acl_mode_select.value != "Disabled" &&
+          tbody.children.length === 0
+        ) {
           alertDialogHandle("Please add MAC Address");
           // escape event
           return;
@@ -2066,7 +2144,16 @@ function loadPage(page, options) {
             ].MACFiltering.MACAddressFilter.push(elem.value);
           }
 
-          applyThenStoreToLS("wifi-5G-mac_filter.html", "Apply", Wifi);
+          var cloneData = deepCopyObject(Wifi["5G"].SSIDs);
+
+          console.log(cloneData);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Wifi,
+            ""
+          );
         } else {
           console.log(`Apply fail`);
         }
@@ -2079,6 +2166,7 @@ function loadPage(page, options) {
     case "wifi-5G-ssids.html":
       console.log(`Load ${page}`, Wifi["5G"]);
 
+      var oldLength = Wifi["5G"].SSIDs.length + 4;
       var addWifiBtn = document.getElementById("AddBtn");
       var tableHeader = document.getElementById("headerTable");
       var tbody = document.getElementById("bodyData");
@@ -2131,7 +2219,7 @@ function loadPage(page, options) {
               window.alert("WPS function only supports WPA and WPA2 mode.");
 
             break;
-          case "4": // WEP-64
+          case "WEP-64": // WEP-64
             current_parent
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -2157,7 +2245,7 @@ function loadPage(page, options) {
               current_parent.getElementById("upLimit_pass_error")
             );
             break;
-          case "5": // WEP-128
+          case "WEP-128": // WEP-128
             current_parent
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -2183,7 +2271,7 @@ function loadPage(page, options) {
               current_parent.getElementById("upLimit_pass_error")
             );
             break;
-          case "6": // WPA3-Personal
+          case "WPA3-Personal": // WPA3-Personal
             current_parent
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -2203,7 +2291,7 @@ function loadPage(page, options) {
               current_parent.getElementById("upLimit_pass_error")
             );
             break;
-          case "7": // WPA2-WPA3-Personal
+          case "WPA2-WPA3-Personal": // WPA2-WPA3-Personal
             current_parent
               .getElementById("panel_passphrase")
               .classList.remove("ng-hide");
@@ -2473,10 +2561,10 @@ function loadPage(page, options) {
         security_type_select.value = ssid_info.Configuration.SecurityType;
         if (
           security_type_select.value === "None" ||
-          security_type_select.value == 4 ||
-          security_type_select.value == 5 ||
-          security_type_select.value == 6 ||
-          security_type_select.value == 7
+          security_type_select.value == "WEP-64" ||
+          security_type_select.value == "WEP-128" ||
+          security_type_select.value == "WPA3-Personal" ||
+          security_type_select.value == "WPA2-WPA3-Personal"
         ) {
           wps_enable.disabled = true;
         } else {
@@ -2529,7 +2617,8 @@ function loadPage(page, options) {
             ).indexOf(currentRow);
             wifiInfoBuffer.splice(currentRowIndex, 1);
             console.log(
-              `Remove Wifi --> Wifi now (length ${wifiInfoBuffer.length
+              `Remove Wifi --> Wifi now (length ${
+                wifiInfoBuffer.length
               }): ${JSON.stringify(wifiInfoBuffer)}`
             );
 
@@ -2538,7 +2627,7 @@ function loadPage(page, options) {
               currentRow.nextElementSibling !== null &&
               currentRow.nextElementSibling !== undefined &&
               currentRow.nextElementSibling ===
-              document.getElementById("detail_panel")
+                document.getElementById("detail_panel")
             ) {
               detail_on_show = false;
               document.getElementById("detail_panel").remove();
@@ -2592,30 +2681,13 @@ function loadPage(page, options) {
           RekeyInterval: "3600",
           Maxconnected: "255",
           BridgeName: "br-lan",
-          Configuration: {
-            EnableRadio: false,
-            AutoChannel: true,
-            OperationMode: 4,
-            Channel: 0,
-            ChannelBandwidth: 2,
-            AdvertiseSSID: true,
-            WMM: true,
-            WMMPS: true,
-            APIsolation: false,
-            SSID: "",
-            SecurityType: 0,
-            Passphrase: "password",
-            DTIM: "",
-            BeaconInterval: "",
-            PowerScale: "",
-            EnableCoExistence: false,
-          },
+          Configuration: deepCopyObject(wifiInfoBuffer[0].Configuration),
           WDS: {
-            WDSMode: 0,
+            WDSMode: "Disabled",
             MACAddress: [],
           },
           MACFiltering: {
-            ACLMode: 1,
+            ACLMode: "Disabled",
             MACAddressFilter: [],
           },
         };
@@ -2653,10 +2725,10 @@ function loadPage(page, options) {
           checkError_selectField(security_type, security_type_error);
           if (
             security_type.value == "None" ||
-            security_type.value == 4 ||
-            security_type.value == 5 ||
-            security_type.value == 6 ||
-            security_type.value == 7
+            security_type.value == "WEP-64" ||
+            security_type.value == "WEP-128" ||
+            security_type.value == "WPA3-Personal" ||
+            security_type.value == "WPA2-WPA3-Personal"
           ) {
             wps.disabled = true;
             wps.checked = false;
@@ -2766,7 +2838,19 @@ function loadPage(page, options) {
               Wifi["5G"].SSIDs
             )}`
           );
-          applyThenStoreToLS("wifi-5G-ssids.html", "Apply", Wifi);
+
+          // create body for post request
+          var cloneData = deepCopyObject(Wifi["5G"].SSIDs);
+          var subOption = oldLength;
+          console.log(cloneData);
+          // connect ACS server
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.COMPLEX,
+            cloneData,
+            Wifi,
+            subOption
+          );
         }
       });
 
@@ -2851,7 +2935,7 @@ function loadPage(page, options) {
       };
 
       var adaptWdsMode = () => {
-        if (wds_select_mode.value == "1") {
+        if (wds_select_mode.value == "Hybrid") {
           // Hybrid --> load MAC Address too
           hybrid_mode_panel.classList.remove("ng-hide");
           add_btn.classList.remove("ng-hide");
@@ -2969,7 +3053,15 @@ function loadPage(page, options) {
           }
           // }
 
-          applyThenStoreToLS("wifi-5G-wds.html", "Apply", Wifi);
+          var cloneData = JSON.parse(JSON.stringify(Wifi["5G"].SSIDs));
+          console.log(cloneData);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Wifi,
+            ""
+          );
         } else {
           console.log("Apply fail");
         }
@@ -3045,6 +3137,7 @@ function loadPage(page, options) {
       var onEditFlag = false;
       var filledData;
       var addFlag = false;
+      var guest_access_edit_idx;
       if (Wifi.GuestAccess.onEdit === "") {
         addFlag = true;
         filledData = {
@@ -3061,6 +3154,11 @@ function loadPage(page, options) {
         )[0];
         console.log(`Load ${page} -- Edit ${filledData.Name}}`, filledData);
         onEditFlag = true;
+
+        for (const elem of Wifi.GuestAccess.Interfaces) {
+          if (elem.SSID == filledData.SSID)
+            guest_access_edit_idx = Wifi.GuestAccess.Interfaces.indexOf(elem);
+        }
       }
 
       var wifiRadio = document.getElementById("Radio");
@@ -3299,9 +3397,38 @@ function loadPage(page, options) {
           filledData.GuestIsolation =
             guestIsolation.classList.contains("checked");
 
-          if (addFlag === true) Wifi.GuestAccess.Interfaces.push(filledData);
+          if (addFlag === true) {
+            Wifi.GuestAccess.Interfaces.push(filledData);
+            var cloneData = deepCopyObject(
+              Wifi.GuestAccess.Interfaces[
+                Wifi.GuestAccess.Interfaces.length - 1
+              ]
+            );
+            console.log(cloneData);
+            httpService.send_POST_Request(
+              page,
+              COMMAND.USER_CONFIG_DATA.ADD,
+              cloneData,
+              Wifi,
+              Wifi.GuestAccess.Interfaces.length - 1,
+              "wifi-guest_access.html"
+            );
+          } else {
+            var cloneData = deepCopyObject(
+              Wifi.GuestAccess.Interfaces[guest_access_edit_idx]
+            );
+            console.log(cloneData);
+            httpService.send_POST_Request(
+              page,
+              COMMAND.USER_CONFIG_DATA.MODIFY,
+              cloneData,
+              Wifi,
+              guest_access_edit_idx,
+              "wifi-guest_access.html"
+            );
+          }
 
-          applyThenStoreToLS("wifi-guest_access.html", "Apply", Wifi);
+          // applyThenStoreToLS("wifi-guest_access.html", "Apply", Wifi);
         }
       });
 
@@ -3346,11 +3473,23 @@ function loadPage(page, options) {
 
           deleteBtn.addEventListener("click", () => {
             if (window.confirm("Are you sure you want to Delete ?")) {
+              var guest_access_del_idx = parseInt(
+                deleteBtn.closest("tr").rowIndex - 1
+              );
               Wifi.GuestAccess.Interfaces.splice(
-                parseInt(deleteBtn.closest("tr").rowIndex - 1), // because the first line is text of name
+                guest_access_del_idx, // because the first line is text of name
                 1
               );
-              applyThenStoreToLS("wifi-guest_access.html", "Apply", Wifi);
+              // applyThenStoreToLS("wifi-guest_access.html", "Apply", Wifi);
+              var cloneData = deepCopyObject(Wifi.GuestAccess.Interfaces);
+              console.log(cloneData);
+              httpService.send_POST_Request(
+                page,
+                COMMAND.USER_CONFIG_DATA.DELETE,
+                cloneData,
+                Wifi,
+                guest_access_del_idx
+              );
             }
           });
           tbody.appendChild(tr);
@@ -3388,9 +3527,19 @@ function loadPage(page, options) {
       });
 
       document.getElementById("Apply").addEventListener("click", () => {
+        // Only change Enable Guest Access config
         Wifi.GuestAccess.EnableGuestAccess =
           enableGuestAccess.classList.contains("checked");
-        applyThenStoreToLS("wifi-guest_access.html", "Apply", Wifi);
+        // applyThenStoreToLS("wifi-guest_access.html", "Apply", Wifi);
+        var cloneData = deepCopyObject(Wifi.GuestAccess);
+        console.log(cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.MODIFY,
+          cloneData,
+          Wifi,
+          ""
+        );
       });
       break;
     default:

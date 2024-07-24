@@ -216,7 +216,7 @@ function checkRange_inputField(input, range_error, empty_error) {
  *         false: if error be trapped
  */
 function checkError_selectField(select, error) {
-  if (select.value === "?") {
+  if (select.value === "?" || select.value === "") {
     error.classList.remove("ng-hide");
     return false;
   } else {
@@ -410,72 +410,73 @@ function checkError_show() {
   return true;
 }
 
-
 /**
  * Generate a random float
  */
 function getRandomFloat(min, max, decimals) {
-  const str = (Math.random() * (max - min) + min).toFixed(
-    decimals,
-  );
+  const str = (Math.random() * (max - min) + min).toFixed(decimals);
 
   return parseFloat(str);
 }
 
 function notifyErrorForSelectElement(selectElement) {
-  let notifySuffix = '_notify';
+  let notifySuffix = "_notify";
   let errorSpan = document.getElementById(selectElement.id + notifySuffix);
   if (!errorSpan) {
-    console.log(selectElement.id + notifySuffix)
+    console.log(selectElement.id + notifySuffix);
     errorSpan = document.createElement("span");
     errorSpan.id = selectElement.id + "_notify";
     errorSpan.style.color = "#ff8b7c";
     // Create span element below select element
     selectElement.parentNode.insertBefore(errorSpan, selectElement.nextSibling);
   }
-  errorSpan.innerHTML = (selectElement.value === '?') ? "* This field is required!" : "";
+  errorSpan.innerHTML =
+    selectElement.value === "?" ? "* This field is required!" : "";
 }
 
 function loadWanInterfaceToSelect(selectElement) {
   // Get WAN interfaces from Local Storage
-  const localStorageData = localStorage.getItem('Basic');
+  const localStorageData = localStorage.getItem("Basic");
   if (!localStorageData) {
-      console.error("No WAN interfaces found in Local Storage");
-      return;
+    console.error("No WAN interfaces found in Local Storage");
+    return;
   }
 
   try {
-      const jsonData = JSON.parse(localStorageData);
-      const wanInterfaces = jsonData.WAN.Interfaces;
+    const jsonData = JSON.parse(localStorageData);
+    const wanInterfaces = jsonData.WAN.Interfaces;
 
-      // Clear select element before populating with options
-      selectElement.innerHTML = '';
+    // Clear select element before populating with options
+    selectElement.innerHTML = "";
 
-      // Create default option
-      let defaultOption = document.createElement('option');
-      defaultOption.value = "?";
-      defaultOption.selected = true;
-      defaultOption.label = "Select";
-      defaultOption.textContent = "Select";
+    // Create default option
+    let defaultOption = document.createElement("option");
+    defaultOption.value = "?";
+    defaultOption.selected = true;
+    defaultOption.label = "Select";
+    defaultOption.textContent = "Select";
+    selectElement.appendChild(defaultOption);
+
+    if (selectElement.id === "Interface") {
+      defaultOption = document.createElement("option");
+      defaultOption.value = "br-lan";
+      defaultOption.selected = false;
+      defaultOption.label = "br-lan";
+      defaultOption.textContent = "br-lan";
       selectElement.appendChild(defaultOption);
-
-      if (selectElement.id === 'Interface') {
-        defaultOption = document.createElement('option');
-        defaultOption.value = "br-lan";
-        defaultOption.selected = false;
-        defaultOption.label = "br-lan";
-        defaultOption.textContent = "br-lan";
-        selectElement.appendChild(defaultOption);
-      }
-      // Create and append options for each WAN interface
-      wanInterfaces.forEach(interface => {
-          const option = document.createElement('option');
-          option.value = interface.Name;
-          option.label = interface.Name;
-          option.textContent = interface.Name;
-          selectElement.appendChild(option);
-      });
+    }
+    // Create and append options for each WAN interface
+    wanInterfaces.forEach((interface) => {
+      const option = document.createElement("option");
+      option.value = interface.Name;
+      option.label = interface.Name;
+      option.textContent = interface.Name;
+      selectElement.appendChild(option);
+    });
   } catch (error) {
-      console.error("Error parsing WAN interface data from Local Storage:", error);
+    console.error(
+      "Error parsing WAN interface data from Local Storage:",
+      error
+    );
   }
 }

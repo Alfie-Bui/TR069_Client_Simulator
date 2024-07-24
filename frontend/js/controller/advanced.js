@@ -7,6 +7,20 @@ function loadPage(page, options) {
   let Security = JSON.parse(localStorage.getItem("Security"));
   let Utilities = JSON.parse(localStorage.getItem("Utilities"));
   let VoIP = JSON.parse(localStorage.getItem("VoIP"));
+
+  function getInterfaceObject(interfaceName) {
+    if (interfaceName === "br-lan") {
+      return "Device.IP.Interface.0";
+    }
+
+    var interfaces = Basic.WAN.Interfaces;
+    for (var i = 0; i < interfaces.length; i++) {
+      if (interfaces[i].Name === interfaceName) {
+        return `Device.IP.Interface.${i + 1}`;
+      }
+    }
+  }
+
   switch (page) {
     case "advanced-alg.html":
       console.log(`Load ${page}`, Advanced.ALG);
@@ -39,7 +53,15 @@ function loadPage(page, options) {
         Advanced.ALG.EnablePPTPPassthrough = pptp.checked;
         Advanced.ALG.EnableL2TPPassthrough = l2tp.checked;
         Advanced.ALG.EnableIPSecPassthrough = ipsec.checked;
-        applyThenStoreToLS("advanced-alg.html", algApplyBtn.value, Advanced);
+        var cloneData = deepCopyObject(Advanced.ALG);
+        console.log(cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.MODIFY,
+          cloneData,
+          Advanced,
+          ""
+        );
       });
 
       algCancelBtn.addEventListener("click", () => {
@@ -141,10 +163,16 @@ function loadPage(page, options) {
           Advanced.DDNS.Username = username.value;
           Advanced.DDNS.Password = password.value;
           Advanced.DDNS.DomainName = domainName.value;
-          applyThenStoreToLS(
-            "advanced-ddns.html",
-            ddnsApplyBtn.value,
-            Advanced
+          var cloneData = deepCopyObject(Advanced.DDNS);
+          cloneData.LocalWanInterface = getInterfaceObject(textContentConverting(localWAN, Advanced.DDNS.LocalWanInterface));
+          cloneData.ServiceProvider = Advanced.DDNS.ServiceProvider;
+          console.log(cloneData);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Advanced,
+            ""
           );
         }
         console.log("Advanced.DDNS: Apply fail");
@@ -225,17 +253,11 @@ function loadPage(page, options) {
         localWANInterfaceSelect.value =
           Advanced.DeviceManagement.LocalWANInterface;
 
-        // if Enable --> take IP of WAN interface
-        if (enaCWMP.checked === true) {
-          connectionRequestURL.value = `http://${
-            Basic.WAN.Interfaces[parseInt(localWANInterfaceSelect.value)]
-              .IPAddress
-          }:7547/`;
-        }
-
         acsUrl.value = Advanced.DeviceManagement.ACSURL;
         acsUsername.value = Advanced.DeviceManagement.ACSUsername;
         acsPassword.value = Advanced.DeviceManagement.ACSPassword;
+        connectionRequestURL.value =
+          Advanced.DeviceManagement.ConnectionReqURL || "";
         connectionReqUsername.value =
           Advanced.DeviceManagement.ConnectionReqUsername;
         connectionReqPwd.value = Advanced.DeviceManagement.ConnectionReqPasword;
@@ -245,6 +267,38 @@ function loadPage(page, options) {
 
       initEvent();
       fillData();
+
+      // Send Inform actively
+      document.getElementById("SendInform").addEventListener("click", () => {
+        if (checkError_show(document.querySelectorAll(".error"))) {
+          Advanced.DeviceManagement.EnaCWMP = enaCWMP.checked;
+          Advanced.DeviceManagement.LocalWANInterface =
+            localWANInterfaceSelect.value;
+          Advanced.DeviceManagement.ACSURL = acsUrl.value;
+          Advanced.DeviceManagement.ACSUsername = acsUsername.value;
+          Advanced.DeviceManagement.ACSPassword = acsPassword.value;
+          Advanced.DeviceManagement.ConnectionReqUsername =
+            connectionReqUsername.value;
+          Advanced.DeviceManagement.ConnectionReqPasword =
+            connectionReqPwd.value;
+          Advanced.DeviceManagement.EnaPerodic = enaPerodic.checked;
+          Advanced.DeviceManagement.PerodicInterval = perocdicInterval.value;
+
+          // create body for post request
+          var cloneData = Object.assign({}, Advanced.DeviceManagement);
+          cloneData.LocalWANInterface =
+            Basic.WAN.Interfaces[parseInt(cloneData.LocalWANInterface)].Name; // mapping value with actual Interface
+          var subOption = "";
+          // connect ACS server
+          httpService.send_POST_Request(
+            page,
+            COMMAND.SEND_INFORM,
+            cloneData,
+            Advanced,
+            subOption
+          );
+        }
+      });
 
       // Apply and Cancel button
       document.getElementById("Modify").addEventListener("click", () => {
@@ -262,15 +316,18 @@ function loadPage(page, options) {
           Advanced.DeviceManagement.EnaPerodic = enaPerodic.checked;
           Advanced.DeviceManagement.PerodicInterval = perocdicInterval.value;
 
+          // create body for post request
           var cloneData = Object.assign({}, Advanced.DeviceManagement);
           cloneData.LocalWANInterface =
-            Basic.WAN.Interfaces[parseInt(cloneData.LocalWANInterface)].Name;
+            Basic.WAN.Interfaces[parseInt(cloneData.LocalWANInterface)].Name; // mapping value with actual Interface
+          var subOption = "";
           // connect ACS server
           httpService.send_POST_Request(
             page,
             COMMAND.CONNECT_ACS,
             cloneData,
-            Advanced
+            Advanced,
+            subOption
           );
         } else {
           console.log("Apply fail");
@@ -354,7 +411,15 @@ function loadPage(page, options) {
         if (checkError_show(ipError)) {
           Advanced.DMZ.EnableDMZ = enaDMZ.checked;
           Advanced.DMZ.IPAddr = ipAddr.value;
-          applyThenStoreToLS("advanced-dmz.html", "Apply", Advanced);
+          var cloneData = deepCopyObject(Advanced.DMZ);
+          console.log(cloneData);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Advanced,
+            ""
+          );
         } else {
           console.log("Apply fail");
         }
@@ -414,10 +479,20 @@ function loadPage(page, options) {
           Advanced.Multicast.GroupLInterval = groupLInterval.value;
           Advanced.Multicast.GroupLCount = groupLCount.value;
 
-          applyThenStoreToLS(
-            "advanced-multicast-ipv4Setting.html",
-            "Apply",
-            Advanced
+          // applyThenStoreToLS(
+          //   "advanced-multicast-ipv4Setting.html",
+          //   "Apply",
+          //   Advanced
+          // );
+
+          // create body for post request
+          var cloneData = deepCopyObject(Advanced.Multicast);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Advanced,
+            ""
           );
         }
       });
@@ -491,16 +566,39 @@ function loadPage(page, options) {
           document.getElementById("DownStreamIntrf1").checked
         );
 
-        applyThenStoreToLS("advanced-multicast.html", "Apply", Advanced);
+        // applyThenStoreToLS("advanced-multicast.html", "Apply", Advanced);
+
+        // create body for post request
+        var cloneData = deepCopyObject(Advanced.Multicast);
+        cloneData.UpstreamInterface = [];
+        cloneData.DownStreamInterface = [];
+        for (const index in Advanced.Multicast.UpstreamInterface){
+          Advanced.Multicast.UpstreamInterface[index] ? cloneData.UpstreamInterface.push(Basic.WAN.Interfaces[index].Name) : "";
+        }
+        Advanced.Multicast.DownStreamInterface[0] ? cloneData.DownStreamInterface.push("br-lan") : "";
+        httpService.send_POST_Request(
+        page,
+        COMMAND.USER_CONFIG_DATA.MODIFY,
+        cloneData,
+        Advanced,
+        ""
+        );
       });
       break;
     case "advanced-port_mapping-add.html":
       console.log(`Load ${page}`, Advanced.PortMapping);
+      var oldLength = Advanced.PortMapping.data.length;
+      var subOption;
       var isAddRule = false;
       if (Advanced.PortMapping.onEdit != "") {
         filledData = Advanced.PortMapping.data.find(
           (obj) => obj.NameOfRule === Advanced.PortMapping.onEdit
         );
+        for (var i = 0; i < Advanced.PortMapping.data.length; i++) {
+          if (Advanced.PortMapping.onEdit === Advanced.PortMapping.data[i].NameOfRule) {
+            subOption = i;
+          }
+        }
       } else {
         isAddRule = true;
         filledData = {
@@ -796,8 +894,35 @@ function loadPage(page, options) {
 
           if (isAddRule) {
             Advanced.PortMapping.data.push(filledData);
+            subOption = oldLength;
+
           }
-          applyThenStoreToLS("advanced-port_mapping.html", "Apply", Advanced);
+          var cloneData = deepCopyObject(Advanced.PortMapping.data);
+          if (filledData.Interface === "All") {
+            cloneData[subOption].Interface = "All";
+          } else {
+            cloneData[subOption].Interface = getInterfaceObject(interfaceSelect.value);
+          }
+          if (isAddRule) {
+            httpService.send_POST_Request(
+              page,
+              COMMAND.USER_CONFIG_DATA.ADD,
+              cloneData[parseInt(subOption)],
+              Advanced,
+              subOption,
+              "advanced-port_mapping.html"
+            );
+          } else {
+            httpService.send_POST_Request(
+              page,
+              COMMAND.USER_CONFIG_DATA.MODIFY,
+              cloneData[parseInt(subOption)],
+              Advanced,
+              subOption,
+              "advanced-port_mapping.html"
+            );
+          }
+          console.log(cloneData);
         } else {
           console.log("Apply fail");
         }
@@ -813,8 +938,9 @@ function loadPage(page, options) {
       var rowElem = document.getElementById("rowElem");
 
       // fill data
-      for (const elem of filledData) {
+      for (const [index, elem] of filledData.entries()) {
         const tr = rowElem.content.cloneNode(true);
+        tr.querySelector("tr").setAttribute("index", index);
 
         elem.Enable
           ? tr.querySelector(".enable").classList.add("gemtek-enabled")
@@ -845,6 +971,7 @@ function loadPage(page, options) {
 
         deleteBtn.addEventListener("click", () => {
           var deletedRow = deleteBtn.closest("tr");
+          var index = deleteBtn.closest("tr").getAttribute("index");
           deleteDialogHandle(
             deletedRow,
             "Delete Port Rule",
@@ -852,7 +979,16 @@ function loadPage(page, options) {
           )
             .then(() => {
               filledData.splice(deletedRow.rowIndex - 1, 1); // the name of column is index 0
-              applyThenStoreToLS(page, "Apply", Advanced);
+              var cloneData = deepCopyObject(Advanced.PortMapping.data);
+              var subOption = index;
+              console.log(cloneData);
+              httpService.send_POST_Request(
+                page,
+                COMMAND.USER_CONFIG_DATA.DELETE,
+                cloneData,
+                Advanced,
+                subOption
+              );
             })
             .catch(() => {
               console.log("Cancel delete");
@@ -872,6 +1008,7 @@ function loadPage(page, options) {
     case "advanced-port_triggering-add.html":
       console.log(`Load ${page}`, Advanced.PortTriggering);
 
+      var oldLength = Advanced.PortTriggering.Rules.length;
       var filledData;
       var addFlag = false;
       if (Advanced.PortTriggering.onEdit === "") {
@@ -888,7 +1025,7 @@ function loadPage(page, options) {
       } else {
         filledData =
           Advanced.PortTriggering.Rules[
-            parseInt(Advanced.PortTriggering.onEdit)
+          parseInt(Advanced.PortTriggering.onEdit)
           ];
       }
 
@@ -999,11 +1136,40 @@ function loadPage(page, options) {
 
           if (addFlag === true) Advanced.PortTriggering.Rules.push(filledData);
 
-          applyThenStoreToLS(
-            "advanced-port_triggering.html",
-            "Apply",
-            Advanced
-          );
+          var subOption;
+          var cloneData = deepCopyObject(Advanced.PortTriggering.Rules);
+          cloneData.forEach((dataItem, index) => {
+            dataItem.TrigerProtocol = textContentConverting(
+              triggerProtocol,
+              dataItem.TrigerProtocol
+            );
+            dataItem.IncomingProtocol = textContentConverting(
+              incomingPortProtocol,
+              dataItem.IncomingProtocol
+            );
+          });
+          console.log(cloneData);
+          if (addFlag === true) {
+            subOption = oldLength;
+            httpService.send_POST_Request(
+              page,
+              COMMAND.USER_CONFIG_DATA.ADD,
+              cloneData[parseInt(subOption)],
+              Advanced,
+              subOption,
+              "advanced-port_triggering.html"
+            );
+          } else {
+            subOption = Advanced.PortTriggering.onEdit;
+            httpService.send_POST_Request(
+              page,
+              COMMAND.USER_CONFIG_DATA.MODIFY,
+              cloneData[parseInt(subOption)],
+              Advanced,
+              subOption,
+              "advanced-port_triggering.html"
+            );
+          }
         } else {
           console.log("Apply fail");
         }
@@ -1062,10 +1228,16 @@ function loadPage(page, options) {
                 parseInt(index), // because the first line is text of name
                 1
               );
-              applyThenStoreToLS(
-                "advanced-port_triggering.html",
-                "Apply",
-                Advanced
+              var cloneData = deepCopyObject(Advanced.PortTriggering.Rules);
+              var subOption = index;
+              page = "advanced-port_triggering.html";
+              console.log(cloneData);
+              httpService.send_POST_Request(
+                page,
+                COMMAND.USER_CONFIG_DATA.DELETE,
+                cloneData,
+                Advanced,
+                subOption
               );
             }
           });
@@ -1089,6 +1261,7 @@ function loadPage(page, options) {
       break;
     case "advanced-static_routing.html":
       console.log(`Load ${page}`, Advanced.StaticRouting);
+      var oldLength = Advanced.StaticRouting.StaticRoutingConfiguration.NumberOfEntries;
       // Function to create a new table row with the provided data
       function createNewRow(data, option, idx) {
         // Create a new table row
@@ -1119,17 +1292,17 @@ function loadPage(page, options) {
         deleteButton.setAttribute("name", "delete");
         deleteButton.value = option;
         deleteButton.onclick = function () {
-          if (
-            (Advanced.StaticRouting.StaticRoutingConfiguration
-              .NumberOfEntries === "1" &&
-              deleteButton.value === "ipv4") ||
-            (Advanced.StaticRouting.IPv6StaticRoutingConfiguration
-              .NumberOfEntries === "1" &&
-              deleteButton.value === "ipv6")
-          ) {
-            alertDialogHandle("Cannot delete all static routing rules");
-            return;
-          }
+          // if (
+          //   (Advanced.StaticRouting.StaticRoutingConfiguration
+          //     .NumberOfEntries === "1" &&
+          //     deleteButton.value === "ipv4") ||
+          //   (Advanced.StaticRouting.IPv6StaticRoutingConfiguration
+          //     .NumberOfEntries === "1" &&
+          //     deleteButton.value === "ipv6")
+          // ) {
+          //   alertDialogHandle("Cannot delete all static routing rules");
+          //   return;
+          // }
           document.getElementById("deletedialog").classList.remove("hide");
           document.getElementById("deletedialog").value = idx.toString();
         };
@@ -1179,7 +1352,23 @@ function loadPage(page, options) {
             Advanced.StaticRouting.StaticRoutingConfiguration.NumberOfEntries
           ) - 1
         ).toString();
-        applyThenStoreToLS(page, "Apply", Advanced);
+
+        /* Create body for post request */
+        const cloneData = [];
+        for (const key in Advanced.StaticRouting.StaticRoutingConfiguration) {
+          if (typeof Advanced.StaticRouting.StaticRoutingConfiguration[key] == "object")
+            cloneData.push(Advanced.StaticRouting.StaticRoutingConfiguration[key]);
+        }
+        var subOption = delIdx;
+        console.log(cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.DELETE,
+          cloneData,
+          Advanced,
+          subOption,
+          "advanced-static_routing.html"
+        );
       };
 
       break;
@@ -1277,6 +1466,7 @@ function loadPage(page, options) {
 
       // get data from input and store data to DB
       document.querySelector("#Add").addEventListener("click", function () {
+        var oldLength = Advanced.StaticRouting.StaticRoutingConfiguration.NumberOfEntries;
         document.querySelectorAll("input").forEach(function (input) {
           if (
             input.id === "DestIPAddress" ||
@@ -1285,8 +1475,7 @@ function loadPage(page, options) {
           ) {
             manageJSONData(
               Advanced,
-              `StaticRouting.StaticRoutingConfiguration.${ipv4RouteIdx.toString()}.${
-                input.id
+              `StaticRouting.StaticRoutingConfiguration.${ipv4RouteIdx.toString()}.${input.id
               }`,
               input.value,
               "add"
@@ -1296,16 +1485,27 @@ function loadPage(page, options) {
         ipv4RouteIdx++;
         Advanced.StaticRouting.StaticRoutingConfiguration.NumberOfEntries =
           ipv4RouteIdx.toString();
-        // store data to DB
-        applyThenStoreToLS(page, "Apply", Advanced);
-        // back to ipv4 static routing table
-        window.location.href = "advanced-static_routing.html";
+
+        /* Create body for post request */
+        var cloneData = deepCopyObject(Advanced.StaticRouting.StaticRoutingConfiguration);
+        var subOption = oldLength;
+        cloneData[subOption].Interface = getInterfaceObject(document.querySelector("#Interface").value);
+        console.log(cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.ADD,
+          cloneData,
+          Advanced,
+          subOption,
+          "advanced-static_routing.html"
+        );
       });
 
       break;
     case "advanced-static_routing-ipv6Config.html":
       console.log(`Load ${page}`, Advanced.StaticRouting);
 
+      var oldLength = Advanced.StaticRouting.IPv6StaticRoutingConfiguration.NumberOfEntries;
       let numberOfEntriesv6 = Number(
         Advanced.StaticRouting.IPv6StaticRoutingConfiguration.NumberOfEntries
       );
@@ -1338,7 +1538,23 @@ function loadPage(page, options) {
                 .NumberOfEntries
             ) - 1
           ).toString();
-        applyThenStoreToLS(page, "Apply", Advanced);
+
+        /* Create body for post request */
+        const cloneData = [];
+        for (const key in Advanced.StaticRouting.IPv6StaticRoutingConfiguration) {
+          if (typeof Advanced.StaticRouting.IPv6StaticRoutingConfiguration[key] == "object")
+            cloneData.push(Advanced.StaticRouting.IPv6StaticRoutingConfiguration[key]);
+        }
+        var subOption = delIdx;
+        console.log(cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.DELETE,
+          cloneData,
+          Advanced,
+          subOption,
+          "advanced-static_routing-ipv6Config.html"
+        );
       };
       break;
     case "advanced-static_routing-ipv6Config-add.html":
@@ -1418,12 +1634,12 @@ function loadPage(page, options) {
 
       // get data from input and store data to DB
       document.querySelector("#Addv6").addEventListener("click", function () {
+        var oldLength = Advanced.StaticRouting.IPv6StaticRoutingConfiguration.NumberOfEntries;
         document.querySelectorAll("input").forEach(function (input) {
           if (input.id === "DestIPPrefix" || input.id === "NextHop") {
             manageJSONData(
               Advanced,
-              `StaticRouting.IPv6StaticRoutingConfiguration.${ipv6RouteIdx.toString()}.${
-                input.id
+              `StaticRouting.IPv6StaticRoutingConfiguration.${ipv6RouteIdx.toString()}.${input.id
               }`,
               input.value,
               "add"
@@ -1433,10 +1649,19 @@ function loadPage(page, options) {
         ipv6RouteIdx++;
         Advanced.StaticRouting.IPv6StaticRoutingConfiguration.NumberOfEntries =
           ipv6RouteIdx.toString();
-        // store data to DB
-        applyThenStoreToLS(page, "Apply", Advanced);
-        // back to IPv6 static routing table
-        window.location.href = "advanced-static_routing-ipv6Config.html";
+        /* Create body for post request */
+        var cloneData = deepCopyObject(Advanced.StaticRouting.IPv6StaticRoutingConfiguration);
+        var subOption = oldLength;
+        cloneData[subOption].Interface = getInterfaceObject(document.querySelector("#Interface").value);
+        console.log(cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.ADD,
+          cloneData,
+          Advanced,
+          subOption,
+          "advanced-static_routing-ipv6Config.html"
+        );
       });
 
       break;
@@ -1462,8 +1687,15 @@ function loadPage(page, options) {
 
       document.getElementById("Modify").addEventListener("click", () => {
         Advanced.UPnP.EnaUPnP = enaUPnP.classList.contains("checked");
-
-        applyThenStoreToLS(page, "Apply", Advanced);
+        var cloneData = deepCopyObject(Advanced.UPnP);
+        console.log(cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.MODIFY,
+          cloneData,
+          Advanced,
+          "",
+        );
       });
       break;
     case "advanced-vpn.html":
@@ -1563,7 +1795,23 @@ function loadPage(page, options) {
         Advanced.vpn.openwrtipsecremote.NumberOfEntries = (
           Number(Advanced.vpn.openwrtipsecremote.NumberOfEntries) - 1
         ).toString();
-        applyThenStoreToLS(page, "Apply", Advanced);
+
+        // convert format
+        const result = [];
+        for (const key in Advanced.vpn.openwrtipsecremote) {
+          if (typeof Advanced.vpn.openwrtipsecremote[key] == "object")
+            result.push(Advanced.vpn.openwrtipsecremote[key]);
+        }
+        var cloneData = deepCopyObject(result);
+        // applyThenStoreToLS(page, "Apply", Advanced);
+        // create body for post request
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.DELETE,
+          cloneData,
+          Advanced,
+          Number(delIdx)
+        );
       };
 
       break;
@@ -1681,19 +1929,19 @@ function loadPage(page, options) {
       function ipsec_apply_btn_Check() {
         ipsec_apply_btn_on =
           is_tunnel_name_valid &&
-          is_openwrtipsecremotepre_shared_key_valid &&
-          is_acceptable_kmp_valid &&
-          is_conn_ifname_valid &&
-          is_remote_ip_valid &&
-          is_src_valid &&
-          is_dst_valid &&
-          is_kmp_enc_alg_valid &&
-          is_kmp_hash_alg_valid &&
-          is_kmp_dh_group_valid &&
-          is_encryption_algorithm_valid &&
-          is_hash_algorithm_valid &&
-          is_enc_dh_group_valid &&
-          is_ipsec_sa_lifetime_time_valid
+            is_openwrtipsecremotepre_shared_key_valid &&
+            is_acceptable_kmp_valid &&
+            is_conn_ifname_valid &&
+            is_remote_ip_valid &&
+            is_src_valid &&
+            is_dst_valid &&
+            is_kmp_enc_alg_valid &&
+            is_kmp_hash_alg_valid &&
+            is_kmp_dh_group_valid &&
+            is_encryption_algorithm_valid &&
+            is_hash_algorithm_valid &&
+            is_enc_dh_group_valid &&
+            is_ipsec_sa_lifetime_time_valid
             ? true
             : false;
 
@@ -1741,8 +1989,8 @@ function loadPage(page, options) {
               document.querySelector(
                 "#ipsec_sa_lifetime_time_notify"
               ).innerHTML = is_ipsec_sa_lifetime_time_valid
-                ? ""
-                : "* Value must be greater than or equal to 1";
+                  ? ""
+                  : "* Value must be greater than or equal to 1";
               break;
           }
         } else {
@@ -1906,12 +2154,27 @@ function loadPage(page, options) {
           Advanced.vpn.openwrtipsecremote.NumberOfEntries =
             tunnel_idx.toString();
           is_edit_ipsec = false;
+          tunnel_idx--;
+          command = COMMAND.USER_CONFIG_DATA.ADD;
+        } else {
+          command = COMMAND.USER_CONFIG_DATA.MODIFY;
         }
-
+        // create body for post request
+        var cloneData = deepCopyObject(Advanced.vpn.openwrtipsecremote[tunnel_idx]);
+        console.log(`Data sent: Advanced.vpn.openwrtipsecremote.${tunnel_idx}`, cloneData);
+        console.log(Advanced);
+        httpService.send_POST_Request(
+          page,
+          command,
+          cloneData,
+          Advanced,
+          tunnel_idx,
+          "advanced-vpn.html" // redirect
+        );
         // store data to DB
-        applyThenStoreToLS(page, "Apply", Advanced);
+        // applyThenStoreToLS(page, "Apply", Advanced);
         // back to ipv4 static routing table
-        window.location.href = "advanced-vpn.html";
+        // window.location.href = "advanced-vpn.html";
       });
       break;
     default:

@@ -20,7 +20,7 @@
     </style>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <title>Broadband Router</title>
+    <title>ACS Virtual Client</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
@@ -134,7 +134,8 @@
     <script src="./js/storage.js"></script>
     <script src="./js/commonFunction.js"></script>
     <script src="./js/controller/wifi.js"></script>
-
+    <script src="./js/service/httpService.js"></script>
+    <script src="./js/service/utils.js"></script>
     <script>
       window.onload = () => {
         checkVersion();
@@ -1546,12 +1547,7 @@
                               <option value="172" label="Zimbabwe">
                                 Zimbabwe
                               </option></select
-                            ><span
-                              class="error ng-binding ng-hide"
-                              ng-show="DeviceWiFiRadio2_RegulatoryDomainresponsestatus"
-                              ng-bind="DeviceWiFiRadio2_RegulatoryDomainval |translate
-                        "
-                            ></span>
+                            ><span class="error ng-binding ng-hide"></span>
                           </div>
                         </div>
                       </div>
@@ -1606,10 +1602,10 @@
                               >
                                 Select
                               </option>
-                              <option value="1" label="a">a</option>
-                              <option value="2" label="an">an</option>
-                              <option value="3" label="anac">anac</option>
-                              <option value="4" label="anacax">
+                              <option value="a" label="a">a</option>
+                              <option value="an" label="an">an</option>
+                              <option value="anac" label="anac">anac</option>
+                              <option value="anacax" label="anacax">
                                 anacax
                               </option></select
                             ><span class="error ng-binding ng-hide"></span
@@ -1913,21 +1909,37 @@
                               required="required"
                             >
                               <option value="None" label="None">None</option>
-                              <option value="1" label="WPA2-Personal">
+                              <option
+                                value="WPA2-Personal"
+                                label="WPA2-Personal"
+                              >
                                 WPA2-Personal
                               </option>
-                              <option value="2" label="WPA-Personal">
+                              <option value="WPA-Personal" label="WPA-Personal">
                                 WPA-Personal
                               </option>
-                              <option value="3" label="WPA-WPA2-Personal">
+                              <option
+                                value="WPA-WPA2-Personal"
+                                label="WPA-WPA2-Personal"
+                              >
                                 WPA-WPA2-Personal
                               </option>
-                              <option value="4" label="WEP-64">WEP-64</option>
-                              <option value="5" label="WEP-128">WEP-128</option>
-                              <option value="6" label="WPA3-Personal">
+                              <option value="WEP-64" label="WEP-64">
+                                WEP-64
+                              </option>
+                              <option value="WEP-128" label="WEP-128">
+                                WEP-128
+                              </option>
+                              <option
+                                value="WPA3-Personal"
+                                label="WPA3-Personal"
+                              >
                                 WPA3-Personal
                               </option>
-                              <option value="7" label="WPA2-WPA3-Personal">
+                              <option
+                                value="WPA2-WPA3-Personal"
+                                label="WPA2-WPA3-Personal"
+                              >
                                 WPA2-WPA3-Personal
                               </option></select
                             ><span class="error ng-binding ng-hide"></span
@@ -2215,90 +2227,6 @@
         </footer>
       </div>
       <div id="main-menu-bg"></div>
-    </div>
-
-    <div
-      class="modal fade"
-      id="myModalHorizontal"
-      aria-labelledby="myModalLabel"
-      aria-hidden="true"
-      tabindex="-1"
-      role="dialog"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">×</span>
-            </button>
-            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-          </div>
-
-          <!-- Modal Body -->
-          <div class="modal-body">
-            <form class="form-horizontal ng-pristine ng-valid" role="form">
-              <div class="form-group">
-                <label
-                  class="col-sm-12 col-lg-3 col-md-3 col-xs-12 control-label"
-                  for="Status"
-                  >Progress:</label
-                >
-                <div class="col-sm-12 col-md-6 col-lg-6 col-xs-12">
-                  <div
-                    class="progress-striped active progress"
-                    value=""
-                    type=""
-                  >
-                    <div
-                      class="progress-bar"
-                      role="progressbar"
-                      aria-valuenow=""
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                      aria-valuetext="%"
-                      style="width: 100%"
-                    >
-                      <span class="ng-binding ng-scope"> </span
-                      ><i class="ng-scope ng-hide">!!! Watch out !!!</i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label
-                  class="col-sm-12 col-lg-3 col-md-3 col-xs-12 control-label"
-                  for="Status"
-                  >Status</label
-                >
-                <div class="col-sm-12 col-md-6 col-lg-6 col-xs-12">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="Status"
-                    placeholder="WPS Session Start"
-                  />
-                </div>
-              </div>
-            </form>
-          </div>
-          <!-- Modal Footer -->
-          <div class="modal-footer">
-            <button
-              type="button"
-              data-ng-click="cancelInterval()"
-              data-dismiss="modal"
-              class="btn btn-info"
-            >
-              Abort WPS
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
     <!--Modal End-->
     <!--        <script src="js/Jquery/jquery1.9.1.min.js"></script>-->

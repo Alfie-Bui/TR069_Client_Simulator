@@ -20,7 +20,7 @@
     </style>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <title>Broadband Router</title>
+    <title>ACS Virtual Client</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
@@ -134,7 +134,8 @@
     <script src="./js/storage.js"></script>
     <script src="./js/commonFunction.js"></script>
     <script src="./js/controller/wifi.js"></script>
-
+    <script src="./js/service/httpService.js"></script>
+    <script src="./js/service/utils.js"></script>
     <script>
       window.onload = () => {
         checkVersion();
@@ -896,7 +897,7 @@ and open the template in the editor.
           />
 
           <div id="translation" class="hide ng-scope">wds5page</div>
-          <div ng-controller="wdsController" class="ng-scope">
+          <div class="ng-scope">
             <!--Breadscrumbs starts here -->
             <div class="row ltq_breadcrumbs">
               <!-- ngRepeat: breadcrumb in $root.breadcrumbs -->
@@ -1070,9 +1071,11 @@ and open the template in the editor.
                               required="required"
                             >
                               <!-- <option value="">Select</option> -->
-                              <option value="0" selected>Disabled</option>
+                              <option value="Disabled" selected>
+                                Disabled
+                              </option>
                               <!-- <option value="Legacy">Legacy</option> -->
-                              <option value="1">Hybrid</option>
+                              <option value="Hybrid">Hybrid</option>
                             </select>
                           </div>
                         </div>
@@ -1144,11 +1147,7 @@ and open the template in the editor.
                               </tr>
                             </thead>
                             <tbody id="mac_addr_list">
-                              <tr
-                                ng-show="status"
-                                id="mac_input_panel"
-                                class="ng-hide"
-                              >
+                              <tr id="mac_input_panel" class="ng-hide">
                                 <td>
                                   <input
                                     id="DeviceWiFiAccessPointX_GTK_Vendor_WaveWDSPeers"
@@ -1277,90 +1276,6 @@ and open the template in the editor.
         </footer>
       </div>
       <div id="main-menu-bg"></div>
-    </div>
-
-    <div
-      class="modal fade"
-      id="myModalHorizontal"
-      aria-labelledby="myModalLabel"
-      aria-hidden="true"
-      tabindex="-1"
-      role="dialog"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">×</span>
-            </button>
-            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-          </div>
-
-          <!-- Modal Body -->
-          <div class="modal-body">
-            <form class="form-horizontal ng-pristine ng-valid" role="form">
-              <div class="form-group">
-                <label
-                  class="col-sm-12 col-lg-3 col-md-3 col-xs-12 control-label"
-                  for="Status"
-                  >Progress:</label
-                >
-                <div class="col-sm-12 col-md-6 col-lg-6 col-xs-12">
-                  <div
-                    class="progress-striped active progress"
-                    value=""
-                    type=""
-                  >
-                    <div
-                      class="progress-bar"
-                      role="progressbar"
-                      aria-valuenow=""
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                      aria-valuetext="%"
-                      style="width: 100%"
-                    >
-                      <span class="ng-binding ng-scope"> </span
-                      ><i class="ng-scope ng-hide">!!! Watch out !!!</i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label
-                  class="col-sm-12 col-lg-3 col-md-3 col-xs-12 control-label"
-                  for="Status"
-                  >Status</label
-                >
-                <div class="col-sm-12 col-md-6 col-lg-6 col-xs-12">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="Status"
-                    placeholder="WPS Session Start"
-                  />
-                </div>
-              </div>
-            </form>
-          </div>
-          <!-- Modal Footer -->
-          <div class="modal-footer">
-            <button
-              type="button"
-              data-ng-click="cancelInterval()"
-              data-dismiss="modal"
-              class="btn btn-info"
-            >
-              Abort WPS
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
     <!--Modal End-->
     <!--        <script src="js/Jquery/jquery1.9.1.min.js"></script>-->

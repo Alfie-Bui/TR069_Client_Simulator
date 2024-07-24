@@ -10,9 +10,9 @@ const GET_URL = `${URL_}/be_get`;
 const NON_OBJ_ERROR = "Fail at creating Request. Payload is not a object";
 
 /**
- * @TODO 
+ * @TODO
  */
-function createGETRequest(command, payload) {
+function createGETRequest(command, payload, subOption) {
   return new Promise((resolve, reject) => {
     if (typeof payload !== "object") {
       reject(NON_OBJ_ERROR);
@@ -44,7 +44,7 @@ function createGETRequest(command, payload) {
  * }
  * @returns
  */
-function createPOSTRequest(page, command, payload) {
+function createPOSTRequest(page, command, payload, subOption) {
   return new Promise(async (resolve, reject) => {
     // check if payload at object type
     if (typeof payload !== "object") {
@@ -53,11 +53,13 @@ function createPOSTRequest(page, command, payload) {
 
     // pacet the request body
     var data = {};
+    data.subOption = subOption;
     data.command = command;
     data.page = page;
     data.data = payload;
 
-    console.log("Send POST request ", SET_URL);
+    console.log("Send POST request to", SET_URL);
+    console.log("Payload POST req", data);
 
     const option = {
       method: "POST",
@@ -70,7 +72,21 @@ function createPOSTRequest(page, command, payload) {
     // send request
     const response = await fetch(SET_URL, option);
     const response_data = await response.json();
-    console.log(response_data);
+    console.log(response_data.content);
+    response.content = response_data.content;
     resolve(response);
   });
+}
+
+/**
+ * 
+ * @param {*} obj 
+ * @returns Object, that independent with original object change
+ */
+function deepCopyObject(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function textContentConverting(selectElements, selectedIndex) {
+  return selectElements.options[selectedIndex].textContent.trim();
 }

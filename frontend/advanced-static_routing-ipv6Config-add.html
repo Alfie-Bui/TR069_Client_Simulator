@@ -20,7 +20,7 @@
     </style>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <title>Broadband Router</title>
+    <title>ACS Virtual Client</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
@@ -134,7 +134,8 @@
     <script src="./js/storage.js"></script>
     <script src="./js/commonFunction.js"></script>
     <script src="./js/controller/advanced.js"></script>
-
+    <script src="./js/service/httpService.js"></script>
+    <script src="./js/service/utils.js"></script>
     <script>
       function back_to_previous() {
         window.location.href = "advanced-static_routing-ipv6Config.html";
@@ -1192,7 +1193,6 @@
                         id="Addv6"
                         class="gemtek-btn-primary"
                         value="Apply"
-                        onclick="back_to_previous()"
                       />
                     </div>
                   </div>

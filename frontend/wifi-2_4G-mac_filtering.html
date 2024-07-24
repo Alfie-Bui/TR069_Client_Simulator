@@ -20,7 +20,7 @@
     </style>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <title>Broadband Router</title>
+    <title>ACS Virtual Client</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
@@ -134,7 +134,8 @@
     <script src="./js/storage.js"></script>
     <script src="./js/commonFunction.js"></script>
     <script src="./js/controller/wifi.js"></script>
-
+    <script src="./js/service/httpService.js"></script>
+    <script src="./js/service/utils.js"></script>
     <script>
       window.onload = () => {
         checkVersion();
@@ -1037,9 +1038,9 @@
                             required=""
                             class="ng-pristine ng-valid ng-valid-required ng-touched"
                           >
-                            <option value="0">Disabled</option>
-                            <option value="1">Allow</option>
-                            <option value="2">Deny</option>
+                            <option value="Disabled">Disabled</option>
+                            <option value="Allow">Allow</option>
+                            <option value="Deny">Deny</option>
                           </select>
                         </div>
                       </div>

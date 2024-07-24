@@ -18,7 +18,6 @@ const STATE_LESS_THAN = 1;
 const STATE_SINGLE_QUOTE = 2;
 const STATE_DOUBLE_QUOTE = 3;
 
-
 function parseXmlDeclaration(buffer) {
   for (const enc of ["utf16le", "utf8", "latin1", "ascii"]) {
     let str = buffer.toString(enc, 0, 150);
@@ -57,7 +56,7 @@ function parseAttrs(string) {
               name: name,
               namespace: namespace,
               localName: localName,
-              value: value
+              value: value,
             };
             attrs.push(e);
             name = "";
@@ -96,7 +95,7 @@ function parseAttrs(string) {
 }
 
 function decodeEntities(string) {
-  return string.replace(/&[0-9a-z#]+;/gi, match => {
+  return string.replace(/&[0-9a-z#]+;/gi, (match) => {
     switch (match) {
       case "&quot;":
         return '"';
@@ -134,9 +133,11 @@ function encodeEntities(string) {
     '"': "&quot;",
     "'": "&apos;",
     "<": "&lt;",
-    ">": "&gt;"
+    ">": "&gt;",
   };
-  return string.replace(/[&"'<>]/g, m => entities[m]);
+  if (string !== undefined && string !== null)
+    return string.toString().replace(/[&"'<>]/g, (m) => entities[m]);
+  else return string;
 }
 
 function parseXml(string) {
@@ -153,7 +154,7 @@ function parseXml(string) {
     attrs: "",
     text: "",
     bodyIndex: 0,
-    children: []
+    children: [],
   };
 
   const stack = [root];
@@ -224,13 +225,7 @@ function parseXml(string) {
         if ((state1 & 0xff) === STATE_LESS_THAN) {
           const secondChar = string.charCodeAt(state1Index + 1);
           const wsIndex = (state1 >> 16) & 0xff;
-          let name,
-            colonIndex,
-            e,
-            parent,
-            selfClosing,
-            localName,
-            namespace;
+          let name, colonIndex, e, parent, selfClosing, localName, namespace;
 
           switch (secondChar) {
             case CHAR_SLASH:
@@ -297,7 +292,7 @@ function parseXml(string) {
                   : "",
                 text: "",
                 bodyIndex: i + 1,
-                children: []
+                children: [],
               };
               parent.children.push(e);
               if (!selfClosing) stack.push(e);

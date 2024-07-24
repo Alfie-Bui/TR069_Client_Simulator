@@ -25,7 +25,6 @@ const { resolve } = require("path");
  */
 function getHumanReadableTime() {
   try {
-    console.log("\n=== utils.getHumanReadableTime() ===");
     // Get the current timestamp
     var currentDate = new Date();
 
@@ -55,7 +54,7 @@ function getHumanReadableTime() {
  * @param {*} page    : which page
  * @param {*} lsData  : local Storage data
  */
-function mappingDataModel(page, lsData) {
+function mappingDataModel(command, page, lsData, subOption) {
   try {
     console.log("\n=== utils.mappingDataModel() ===");
     // console.log(page);
@@ -66,19 +65,19 @@ function mappingDataModel(page, lsData) {
     const retrieveCategory = page.split("-");
     switch (retrieveCategory[0]) {
       case "advanced":
-        return advanced.mapping(page, lsData);
+        return advanced.mapping(command, page, lsData, subOption);
       case "basic":
-        return basic.mapping(page.lsData);
+        return basic.mapping(command, page, lsData, subOption);
       case "security":
-        return security.mapping(page, lsData);
+        return security.mapping(command, page, lsData, subOption);
       case "status":
-        return status.mapping(page, lsData);
+        return status.mapping(command, page, lsData, subOption);
       case "utilities":
-        return utilities.mapping(page, lsData);
+        return utilities.mapping(command, page, lsData, subOption);
       case "voip":
-        return voip.mapping(page, lsData);
+        return voip.mapping(command, page, lsData, subOption);
       case "wifi":
-        return wifi.mapping(page, lsData);
+        return wifi.mapping(command, page, lsData, subOption);
       default:
         throw `[Error] Category ${retrieveCategory[0]} is not available`;
     }

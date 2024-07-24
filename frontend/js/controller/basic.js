@@ -34,6 +34,7 @@ function loadPage(page, options) {
       console.log(`Load ${page}`, Basic.LAN.IPv4Configuration);
 
       var filledData = Basic.LAN.IPv4Configuration;
+      var oldLength = Basic.LAN.IPv4Configuration.IPAddressReservation.length;
 
       var devIPAddr = document.getElementById("IPAddress");
       var subnetMask = document.getElementById("SubnetMask");
@@ -380,8 +381,21 @@ function loadPage(page, options) {
               IP: value[1],
             });
           }
-          console.log("Basic.LAN.IPv4", filledData);
-          applyThenStoreToLS(page, "Apply", Basic);
+          //applyThenStoreToLS(page, "Apply", Basic);
+          // create body for post request
+          var cloneData = deepCopyObject(Basic.LAN.IPv4Configuration);
+          var subOption = oldLength;
+          cloneData.DHCPMode = dhcpMode.options[dhcpMode.selectedIndex].text;
+          secondConvert = [3600, 86400, 604800];
+          cloneData.LeaseTime = secondConvert[parseInt(cloneData.LeaseTime)];
+          console.log("Data sent: Basic.LAN.IPv4", cloneData);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.COMPLEX,
+            cloneData,
+            Basic,
+            subOption
+          );
         } else {
           console.log("Apply fail");
         }
@@ -470,7 +484,19 @@ function loadPage(page, options) {
           filledData.PrimaryDNSv6 = primaryDNSv6.value;
           filledData.SecondaryDNSv6 = secondDNSv6.value;
           filledData.DomainName = domainName.value;
-          applyThenStoreToLS(page, "Apply", Basic);
+          // applyThenStoreToLS(page, "Apply", Basic);
+          // create body for post request
+          var cloneData = deepCopyObject(Basic.LAN.IPv6Configuration);
+          cloneData.AutoConfigurationMode =
+            autoConfigMode.options[autoConfigMode.selectedIndex].text;
+          console.log("Data sent: Basic.LAN.IPv6Configuration", cloneData);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Basic,
+            ""
+          );
         } else {
           console.log("Apply fail");
         }
@@ -513,7 +539,16 @@ function loadPage(page, options) {
         .addEventListener("click", function () {
           Basic.RegistrationID.RegistrationID =
             document.querySelector("#RegID").value;
-          applyThenStoreToLS(page, "Apply", Basic);
+          // applyThenStoreToLS(page, "Apply", Basic);
+          // create body for post request
+          var cloneData = deepCopyObject(Basic.RegistrationID);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Basic,
+            ""
+          );
           document.querySelector("#RegID").value =
             Basic.RegistrationID.RegistrationID;
         });
@@ -526,27 +561,13 @@ function loadPage(page, options) {
       break;
     case "basic-wan-addWAN.html":
       console.log(`Load ${page}`, Basic.WAN);
-      var filledData;
+      var filledData = {};
       var addNew_flag = false;
+      var oldLength = Basic.WAN.Interfaces.length;
 
-      /** Take data from Loca Storage, corresponds to Add or Edit */
-      if (Basic.WAN.onEdit !== "") {
-        // if edit --> Load from Local Storage
-        filledData = Basic.WAN.Interfaces.filter(
-          (obj) => obj.Name === Basic.WAN.onEdit
-        )[0];
-        console.log(`Load ${page} -- Edit ${filledData.Name}}`, filledData);
-      } else {
-        // if add New interface --> make prototype
-        addNew_flag = true;
-        var current_wan_interfaces = Basic.WAN.Interfaces.map((obj) =>
-          obj.Name.replace(/_.*_/, "_")
-        );
-        var remain_in_pool = WAN_INTERFACE_POOL.filter(
-          (cinterface) => !current_wan_interfaces.includes(cinterface)
-        ); // retrieve available interfaces name
-        filledData = {
-          Name: remain_in_pool[0],
+      function refreshData(iname) {
+        return {
+          Name: iname,
           SelectionMode: "ETH",
           ConnectionType: "DHCP",
           VLAN: "", // if empty --> false
@@ -564,12 +585,15 @@ function loadPage(page, options) {
           Username: "",
           Password: "",
           MTUSize: "",
-          IPAddress: "",
-          DefaultGateway: "",
+          IPAddress: "192.168.99.51",
+          DefaultGateway: "192.168.99.1",
           Actions: false,
+          /** IPv6 information */
+          EnableIPv6: true,
           IPv6: {
-            IPv6Address: "",
-            v6DefaultGateway: "",
+            // main WAN --> IPv6
+            IPv6Address: "2222::382f:e77d:b85e:4d2f",
+            v6DefaultGateway: "fe80::e0:92ff:fe00:141",
             //
             AddressingType: "DHCPv6",
             PrefixMode: "", // if empty --> disable "Enable PD" checkbox
@@ -588,6 +612,25 @@ function loadPage(page, options) {
             IPv6DNSServer: [],
           },
         };
+      }
+
+      /** Take data from Loca Storage, corresponds to Add or Edit */
+      if (Basic.WAN.onEdit !== "") {
+        // if edit --> Load from Local Storage
+        filledData = Basic.WAN.Interfaces.filter(
+          (obj) => obj.Name === Basic.WAN.onEdit
+        )[0];
+        console.log(`Load ${page} -- Edit ${filledData.Name}}`, filledData);
+      } else {
+        // if add New interface --> make prototype
+        addNew_flag = true;
+        var current_wan_interfaces = Basic.WAN.Interfaces.map((obj) =>
+          obj.Name.replace(/_.*_/, "_")
+        );
+        var remain_in_pool = WAN_INTERFACE_POOL.filter(
+          (cinterface) => !current_wan_interfaces.includes(cinterface)
+        ); // retrieve available interfaces name
+        filledData = refreshData(remain_in_pool[0]);
         console.log(
           `Load ${page} -- Add ${filledData.Name}}\n${JSON.stringify(
             filledData
@@ -1445,6 +1488,7 @@ function loadPage(page, options) {
       });
 
       applyBtn.addEventListener("click", () => {
+        filledData = refreshData(filledData.Name);
         var static_apply_flag = true;
         var dhcp_apply_flag = true;
         var pppoe_apply_flag = true;
@@ -1469,10 +1513,16 @@ function loadPage(page, options) {
         /** Check Error at common field */
         if (enableVLAN.checked === true) {
           elemAfterChange.VLAN = vlan_input.value;
-          if (/_.*_/.test(elemAfterChange.Name)){
-            elemAfterChange.Name = filledData.Name.replace(/_.*_/, `_${vlan_input.value}_`);
+          if (/_.*_/.test(elemAfterChange.Name)) {
+            elemAfterChange.Name = filledData.Name.replace(
+              /_.*_/,
+              `_${vlan_input.value}_`
+            );
           } else {
-            elemAfterChange.Name = filledData.Name.replace("_", `_${vlan_input.value}_`);
+            elemAfterChange.Name = filledData.Name.replace(
+              "_",
+              `_${vlan_input.value}_`
+            );
           }
           common_apply_flag &= checkError_show(
             document.querySelectorAll(".vlan_error")
@@ -1721,11 +1771,11 @@ function loadPage(page, options) {
               if (enableDefaultGW.checked === true) {
                 // if default gateway v4
                 elemAfterChange.DefaultGateway = "192.168.99.1";
-                if (enableVLAN.checked === true)
+                if (enableVLAN.checked === true) {
                   var currentIP = elemAfterChange.IPAddress.split(".");
-                currentIP[3] = "1"; // because we create IP of VLAN at C class
-                elemAfterChange.DefaultGateway = currentIP.join(".");
-
+                  currentIP[3] = "1"; // because we create IP of VLAN at C class
+                  elemAfterChange.DefaultGateway = currentIP.join(".");
+                }
                 // v6
                 elemAfterChange.IPv6.v6DefaultGateway =
                   "fe80::e0:92ff:fe00:141";
@@ -1783,7 +1833,6 @@ function loadPage(page, options) {
         }
         if (addNew_flag) {
           // if Add button --> push new element instead of modify
-          const oldLength = Basic.WAN.Interfaces.length;
           var tempIndex = -1;
           for (var i = 0; i < Basic.WAN.Interfaces.length; i++) {
             if (
@@ -1811,11 +1860,26 @@ function loadPage(page, options) {
           elemAfterChange.DefaultGateway = "";
           elemAfterChange.IPv6.v6DefaultGateway = "";
         }
-        applyThenStoreToLS("basic-wan-ipv4.html", "Apply", Basic);
+
+        var redirect;
+        Basic.WAN.atv6Config
+          ? (redirect = "basic-wan-ipv6.html")
+          : (redirect = "basic-wan-ipv4.html");
+        var cloneData = deepCopyObject(Basic.WAN.Interfaces);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.COMPLEX,
+          cloneData,
+          Basic,
+          oldLength,
+          redirect
+        );
       });
       break;
     case "basic-wan-ipv4.html":
       console.log(`Load ${page}`, Basic.WAN.Interfaces);
+
+      var oldLength = Basic.WAN.Interfaces.length;
 
       var bodyData = document.getElementById("bodyData");
       var addBtn = document.getElementById("Add");
@@ -1862,8 +1926,16 @@ function loadPage(page, options) {
             (obj) => obj.Name === clickElemName
           );
           clickElem.Actions = !clickElem.Actions;
+          var index = Basic.WAN.Interfaces.indexOf(clickElem);
           actionConnectCell.checked = !actionConnectCell.checked;
-          applyThenStoreToLS("basic-wan-ipv4.html", "Apply", Basic);
+          var cloneData = deepCopyObject(Basic.WAN.Interfaces[index]);
+          httpService.send_POST_Request(
+            page,
+            COMMAND.USER_CONFIG_DATA.MODIFY,
+            cloneData,
+            Basic,
+            index
+          );
         });
 
         editBtn.addEventListener("click", () => {
@@ -1889,7 +1961,14 @@ function loadPage(page, options) {
                   1
                 );
                 console.log(Basic.WAN.Interfaces);
-                applyThenStoreToLS("basic-wan-ipv4.html", "Apply", Basic);
+                var cloneData = deepCopyObject(Basic.WAN.Interfaces);
+                httpService.send_POST_Request(
+                  page,
+                  COMMAND.USER_CONFIG_DATA.COMPLEX,
+                  cloneData,
+                  Basic,
+                  oldLength
+                );
               })
               .catch(() => {});
           }

@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "./startServer.sh",
-    "install": "npm install body-parser express path fs nedb cors"
+    "install": "npm install body-parser express path fs nedb cors",
+    "restart": "sudo rm database/db_data_model.db"
   },
   "keywords": [
     "TR-069",

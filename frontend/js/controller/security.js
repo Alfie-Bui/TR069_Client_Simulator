@@ -61,7 +61,18 @@ function loadPage(page, options) {
         });
 
         console.log("Security settings updated:", Security);
-        applyThenStoreToLS("security-firewall.html", "Apply", Security);
+        // applyThenStoreToLS("security-firewall.html", "Apply", Security);
+
+        // create body for post request
+        var cloneData = deepCopyObject(Security.Firewall);
+        console.log("Data sent: Security.Firewall", cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.MODIFY,
+          cloneData,
+          Security,
+          ""
+        );
       });
 
       break;
@@ -101,10 +112,17 @@ function loadPage(page, options) {
           "Parental Control settings updated:",
           Security.ParentalControl.ParentalControlSettings
         );
-        applyThenStoreToLS(
-          "security-parental_control_settings.html",
-          applyBtn.value,
-          Security
+
+        /* Create body for post request */
+        var cloneData = deepCopyObject(Security.ParentalControl.ParentalControlSettings);
+        cloneData.DefaultAction = cloneData.DefaultAction == 1? true: false;
+        console.log(cloneData);
+        httpService.send_POST_Request(
+          page,
+          COMMAND.USER_CONFIG_DATA.MODIFY,
+          cloneData,
+          Security,
+          ""
         );
       });
 
@@ -112,6 +130,8 @@ function loadPage(page, options) {
     case "security-parental_control-devControl-add.html":
       console.log(`Load ${page}`, Security.ParentalControl);
 
+      var oldLength = Security.ParentalControl.DeviceUnderParentalControl.Rules.length;
+      var subOption;
       var filledData;
       var addFlag = false;
       if (Security.ParentalControl.DeviceUnderParentalControl.onEdit === "") {
@@ -134,6 +154,12 @@ function loadPage(page, options) {
               obj.PolicyName ===
               Security.ParentalControl.DeviceUnderParentalControl.onEdit
           )[0];
+
+        for (var i = 0; i < Security.ParentalControl.DeviceUnderParentalControl.Rules.length; i++) {
+          if (Security.ParentalControl.DeviceUnderParentalControl.onEdit === Security.ParentalControl.DeviceUnderParentalControl.Rules[i].PolicyName) {
+            subOption = i;
+          }
+        }
         console.log(
           `Load ${page} -- Edit ${filledData.PolicyName}}\n${JSON.stringify(
             filledData
@@ -522,13 +548,37 @@ function loadPage(page, options) {
             Security.ParentalControl.DeviceUnderParentalControl.Rules.push(
               filledData
             );
-          applyThenStoreToLS(
-            "security-parental_control-devControl.html",
-            "Apply",
-            Security
-          );
-        }
 
+          /* Create body for post request */
+          var cloneData = deepCopyObject(Security.ParentalControl.DeviceUnderParentalControl.Rules);
+          if (addFlag === true) {
+            subOption = oldLength;
+            cloneData[parseInt(subOption)].DaysOfTheWeek = cloneData[parseInt(subOption)].DaysOfTheWeek
+            .replace(/\s+/g, '')
+            .replace(/,\n/g, ',');
+            httpService.send_POST_Request(
+              page,
+              COMMAND.USER_CONFIG_DATA.ADD,
+              cloneData[parseInt(subOption)],
+              Security,
+              subOption,
+              "security-parental_control-devControl.html"
+            );
+          } else {
+            cloneData[parseInt(subOption)].DaysOfTheWeek = cloneData[parseInt(subOption)].DaysOfTheWeek
+            .replace(/\s+/g, '')
+            .replace(/,\n/g, ',');
+            httpService.send_POST_Request(
+              page,
+              COMMAND.USER_CONFIG_DATA.MODIFY,
+              cloneData[parseInt(subOption)],
+              Security,
+              subOption,
+              "security-parental_control-devControl.html"
+            );
+          }
+          console.log(cloneData);
+        }
       });
 
       document.getElementById("Cancel").addEventListener("click", () => {
@@ -597,10 +647,18 @@ function loadPage(page, options) {
                 parseInt(deleteBtn.closest("tr").rowIndex - 1),
                 1
               );
-              applyThenStoreToLS(
-                "security-parental_control-devControl.html",
-                "Apply",
-                Security
+              var cloneData = deepCopyObject(Security.ParentalControl.DeviceUnderParentalControl.Rules);
+              var subOption = parseInt(deleteBtn.closest("tr").rowIndex - 1)
+              cloneData.forEach(function(rule) {
+                rule.DaysOfTheWeek = rule.DaysOfTheWeek.trim().split(/\s*,\s*/).map(day => day.trim()).join(',');
+              });
+              console.log(cloneData);
+              httpService.send_POST_Request(
+                page,
+                COMMAND.USER_CONFIG_DATA.DELETE,
+                cloneData,
+                Security,
+                subOption
               );
             }
           });
