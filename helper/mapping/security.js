@@ -33,7 +33,6 @@ function mapping(command, page, lsData, subOption) {
       break;
     case "security-parental_control_settings.html":
       returnVal = {
-        "Device.Firewall.X_GTK_ParentalControl.":               ["true", "false", "", ""],
         "Device.Firewall.X_GTK_ParentalControl.Enable":         ["false", "true", lsData.EnableParentalControl.toString(), "xsd:boolean"],
         "Device.Firewall.X_GTK_ParentalControl.DefaultAction":  ["false", "true", lsData.DefaultAction.toString(), "xsd:boolean"]
       };

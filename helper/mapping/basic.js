@@ -109,16 +109,16 @@ function mapping(command, page, lsData, subOption) {
           returnVal.complexPart[`${complexPrefix[3]}.${dbIndex}.VLANID`] = ["false", "true", lsData[i].VLAN, "xsd::unsignedInt"];
 
           // Device.IP.Interface (continue)
-          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address`]                     = ["true", "true", "", ""];
-          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address.1`]                   = ["true", "true", "", ""];
+          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address`]                     = ["true", "false", "", ""];
+          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address.1`]                   = ["true", "false", "", ""];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address.1.AddressingType`]    = ["false", "true", lsData[i].ConnectionType, "xsd::string"];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address.1.Alias`]             = ["false", "true", `cpe-${dbIndex}`, "xsd::string"];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address.1.X_GTK_Description`] = ["false", "false", lsData[i].ConnectionType, "xsd::string"];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4AddressNumberOfEntries`]      = ["false", "false", "1", "xsd::unsignedInt"];
 
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Enable`]                      = ["false", "true", lsData[i].EnableIPv6, "xsd::boolean"];
-          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Address`]                     = ["true", "true", "", ""];
-          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Address.1`]                   = ["true", "true", "", ""];
+          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Address`]                     = ["true", "false", "", ""];
+          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Address.1`]                   = ["true", "false", "", ""];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Address.1.Alias`]             = ["false", "true", `cpe-${dbIndex}`, "xsd::string"];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Address.1.Origin`]            = ["false", "true", lsData[i].IPv6.AddressingType, "xsd::string"];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Prefix.1.Enable`]             = ["false", "true", lsData[i].IPv6.PrefixMode ? "true" : "false", "xsd::boolean"]

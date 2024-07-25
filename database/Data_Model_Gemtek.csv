@@ -9,6 +9,7 @@ Device.DeviceInfo.SerialNumber,false,false,000000000000,xsd:string
 Device.DeviceInfo.HardwareVersion,false,false,"PRX300 rev 1.2, PRX321-HGU-11AX",xsd:string
 Device.DeviceInfo.SoftwareVersion,false,false,GemtekSW-v0.8.7.2,xsd:string
 Device.DeviceInfo.VendorLogFileNumberOfEntries,false,false,1,xsd:unsignedInt
+Device.DeviceInfo.VendorLogFile,true,false,,
 Device.DeviceInfo.VendorLogFile.1,true,false,,
 Device.DeviceInfo.VendorLogFile.1.Alias,false,false,cpe-1,xsd:string
 Device.DeviceInfo.VendorLogFile.1.Name,false,true,messages,xsd:string
@@ -16,10 +17,11 @@ Device.DeviceInfo.VendorLogFile.1.MaximumSize,false,true,1000,xsd:unsignedInt
 Device.DeviceInfo.VendorLogFile.1.X_GTK_IPAddress,false,true,,xsd:string
 Device.DeviceInfo.VendorLogFile.1.X_GTK_Port,false,true,,xsd:string
 Device.DeviceInfo.VendorLogFile.1.X_GTK_Remote,false,true,false,xsd:boolean
-Device.DHCPv4.,true,false,,
+Device.DHCPv4,true,false,,
 Device.DHCPv4.Server,true,false,,
 Device.DHCPv4.Server.PoolNumberOfEntries,false,false,1,xsd:unsignedInt
-Device.DHCPv4.Server.Pool.1.,true,,,
+Device.DHCPv4.Server.Pool,true,false,,
+Device.DHCPv4.Server.Pool.1,true,false,,
 Device.DHCPv4.Server.Pool.1.Enable,false,true,Server,xsd:boolean
 Device.DHCPv4.Server.Pool.1.MinAddress,false,true,192.168.1.2,xsd:string
 Device.DHCPv4.Server.Pool.1.MaxAddress,false,true,192.168.1.254,xsd:string
@@ -30,11 +32,13 @@ Device.DHCPv4.Server.Pool.1.DNSServers,false,true,192.168.1.1,xsd:string
 Device.DHCPv4.Server.Pool.1.ReservedAddresses,false,true,,xsd:string
 Device.DHCPv4.Relay,true,false,,
 Device.DHCPv4.Relay.ForwardingNumberOfEntries,false,false,0,xsd:unsignedInt
+Device.DHCPv4.Relay.Forwarding,true,false,,
 Device.DHCPv4.Relay.Forwarding.1,true,false,,
 Device.DHCPv4.Relay.Forwarding.1.Enable,false,true,,xsd:boolean
 Device.DHCPv4.Relay.Forwarding.1.DHCPServerIPAddress,false,true,,xsd:string
 Device.DHCPv6,true,false,,
 Device.DHCPv6.ClientNumberOfEntries,false,false,1,xsd:unsignedInt
+Device.DHCPv6.Client,,
 Device.DHCPv6.Client.1,true,false,,
 Device.DHCPv6.Client.1.Enable,false,false,true,xsd:boolean
 Device.DHCPv6.Client.1.Interface,false,false,,xsd:string
@@ -86,7 +90,7 @@ Device.DynamicDNS.Server.1.Alias,false,false,cpe-1,xsd:string
 Device.DynamicDNS.Server.2,true,false,,
 Device.DynamicDNS.Server.2.Name,false,false,no-ip.com,xsd:string
 Device.DynamicDNS.Server.2.Alias,false,false,cpe-2,xsd:string
-Device.Ethernet.,true,false,,
+Device.Ethernet,true,false,,
 Device.Ethernet.Interface,true,false,,
 Device.Ethernet.InterfaceNumberOfEntries,false,false,1,xsd:unsignedInt
 Device.Ethernet.Interface.1,true,false,,
@@ -97,6 +101,7 @@ Device.Ethernet.Interface.1.MACAddress,false,false,02:E0:92:00:01:41,xsd:string
 Device.Ethernet.Interface.1.MaxBitRate,false,false,10,xsd:unsignedInt
 Device.Ethernet.Interface.1.DuplexMode,false,false,Auto,xsd:string
 Device.Ethernet.LinkNumberOfEntries,false,false,1,xsd:unsignedInt
+Device.Ethernet.Link,true,false,,
 Device.Ethernet.Link.1,true,false,,
 Device.Ethernet.Link.1.Status,false,false,Up,xsd:string
 Device.Ethernet.Link.1.Alias,false,true,cpe-1,xsd:string
@@ -108,10 +113,12 @@ Device.Ethernet.VLANTermination,true,true,,
 Device.Ethernet.VLANTermination.1,true,true,,
 Device.Ethernet.VLANTermination.1.Enable,false,true,false,xsd:boolean
 Device.Ethernet.VLANTermination.1.VLANID,false,true,,xsd:unsignedInt
-Device.Firewall.,true,false,,
+Device.Firewall,true,false,,
 Device.Firewall.Enable,false,true,true,xsd:boolean
 Device.Firewall.Config,false,false,Advanced,xsd:string
+Device.Firewall.Chain,true,false,,
 Device.Firewall.Chain.1,true,false,,
+Device.Firewall.Chain.1.Rule,true,false,,
 Device.Firewall.Chain.1.Rule.1,true,false,,
 Device.Firewall.Chain.1.Rule.1.Description,false,false,Telnet,xsd:string
 Device.Firewall.Chain.1.Rule.1.DestPort,false,false,23,xsd:int
@@ -128,12 +135,14 @@ Device.Firewall.Chain.1.Rule.4,true,false,,
 Device.Firewall.Chain.1.Rule.4.Description,false,false,ICMP,xsd:string
 Device.Firewall.Chain.1.Rule.4.DestPort,false,false,-1,xsd:int
 Device.Firewall.Chain.1.Rule.4.Enable,false,true,true,xsd:boolean
-Device.Firewall.X_GTK_ParentalControl.,true,false,,
+Device.Firewall.X_GTK_ParentalControl,true,false,,
 Device.Firewall.X_GTK_ParentalControl.Enable,false,true,true,xsd:boolean
 Device.Firewall.X_GTK_ParentalControl.DefaultAction,false,true,false,xsd:boolean
 Device.Firewall.X_GTK_ParentalControl.RuleNumberOfEntries,false,false,0,xsd:unsignedInt
+Device.Firewall.X_GTK_ParentalControl.Rule,true,false,,
 Device.Hosts,true,false,,
 Device.Hosts.HostNumberOfEntries,false,false,2,xsd:unsignedInt
+Device.Hosts.Host,true,false,,
 Device.Hosts.Host.0,true,false,,
 Device.Hosts.Host.0.HostName,false,true,DESKTOP-DL2F1BS,xsd::string
 Device.Hosts.Host.0.PhysAddress,false,true,ac:1a:3d:91:fc:cb,xsd::string
@@ -170,9 +179,16 @@ Device.ManagementServer.STUNMaximumKeepAlivePeriod,false,true,90,xsd:unsignedInt
 Device.ManagementServer.STUNMinimumKeepAlivePeriod,false,true,30,xsd:unsignedInt
 Device.ManagementServer.AliasBasedAddressing,false,true,,xsd:boolean
 Device.ManagementServer.X_GTK_Interface,false,true,lan,xsd:string
-Device.NAT.,true,false,,
-Device.NAT.PortMappingNumberOfEntries,false,false,1,xsd:unsignedInt
+Device.NAT,true,false,,
+Device.NAT.PortMapping,true,false,,
+Device.NAT.PortMappingNumberOfEntries,false,false,0,xsd:unsignedInt
+Device.NAT.X_GTK_PortTriggering,true,false,,
 Device.NAT.X_GTK_PortTriggeringNumberOfEntries,false,false,1,xsd:unsignedInt
+Device.Routing,true,false,,
+Device.Routing.Router,true,false,,
+Device.Routing.Router.1,true,false,,
+Device.Routing.Router.1.IPv4Forwarding,true,false,,
+Device.Routing.Router.1.IPv6Forwarding,true,false,,
 Device.NAT.X_GTK_DMZ,true,false,,
 Device.NAT.X_GTK_DMZ.Enable,false,true,false,xsd:boolean
 Device.NAT.X_GTK_DMZ.IPAddress,false,true,0.0.0.0,xsd:string
@@ -193,7 +209,7 @@ Device.Optical.Interface.1.Status,false,false,"O5.1, Associated state",xsd:strin
 Device.Optical.Interface.1.TXPower,false,false,17,xsd:int
 Device.Optical.Interface.1.Temperature,false,false,204,xsd:unsignedInt
 Device.Optical.Interface.1.Voltage,false,false,9,xsd:unsignedInt
-Device.PPP.,true,false,,
+Device.PPP,true,false,,
 Device.PPP.Interface,true,true,,
 Device.PPP.Interface.1,true,true,,
 Device.PPP.Interface.1.Username,false,true,"",xsd:string
@@ -215,8 +231,9 @@ Device.Time.X_GTK_TimeZoneLocation,false,true,Asia/Kolkata(IST-5:30),xsd:string
 Device.UPnP,true,false,,
 Device.UPnP.Device,true,false,,
 Device.UPnP.Device.Enable,false,true,false,xsd:boolean
-Device.Users.,true,false,,
+Device.Users,true,false,,
 Device.Users.UserNumberOfEntries,false,false,3,xsd:unsignedInt
+Device.Users.User,true,false,,
 Device.Users.User.1,true,false,,
 Device.Users.User.1.Alias,false,true,cpe-1,xsd:string
 Device.Users.User.1.Enable,false,true,true,xsd:boolean
@@ -236,8 +253,9 @@ Device.X_GTK_RegID,true,false,,
 Device.X_GTK_RegID.RegID,false,true,MAXLINEAR ONU INTC92000140,xsd:string
 Device.X_GTK_GuestAccess,true,false,,
 Device.X_GTK_GuestAccess.Enable,false,true,true,xsd:boolean
+Device.X_GTK_GuestAccess.Rule,true,false,,
 Device.X_GTK_GuestAccess.RuleNumberOfEntries,false,false,0,xsd:unsignedInt
-Device.X_GTK_VoIP.,true,false,,
+Device.X_GTK_VoIP,true,false,,
 Device.X_GTK_VoIP.X_GTK_TelephoneNumber,false,true,100,xsd:unsignedInt
 Device.X_GTK_VoIP.X_GTK_RegistarAddress,false,true,10.20.55.13,xsd:string
 Device.X_GTK_VoIP.X_GTK_RegistarPort,false,true,5060,xsd:unsignedInt
@@ -250,6 +268,7 @@ Device.X_GTK_VoIP.X_GTK_OutboundProxyPort,false,true,5060,xsd:unsignedInt
 Device.X_GTK_VoIP.X_GTK_Interface,false,true,Device.IP.Interface.1,xsd:string
 Device.IP,true,false,,
 Device.IP.InterfaceNumberOfEntries,false,false,3,xsd:unsignedInt
+Device.IP.Interface,true,false,,
 Device.IP.Interface.1,true,false,,
 Device.IP.Interface.1.IPv6Enable,false,true,true,xsd:boolean
 Device.IP.Interface.1.Enable,false,false,true,xsd:boolean
@@ -314,6 +333,7 @@ Device.X_GTK_IPv6.X_GTK_SEC_DNSv6,false,true,'',xsd::string
 Device.X_GTK_IPv6.Domain,false,true,gemtek.com,xsd:string
 Device.X_GTK_IPSec,true,false,,
 Device.X_GTK_IPSec.TunnelNumberOfEntries,false,true,1,xsd:unsignedInt
+Device.X_GTK_IPSec.Tunnel,true,false,,
 Device.X_GTK_IPSec.Tunnel.1,true,false,,
 Device.X_GTK_IPSec.Tunnel.1.Enable,false,true,true,xsd:boolean
 Device.X_GTK_IPSec.Tunnel.1.TunnelName,false,true,gemtek,xsd:string
@@ -332,6 +352,7 @@ Device.X_GTK_IPSec.Tunnel.1.P2_DHGroup,false,true,modp768,xsd:string
 Device.X_GTK_IPSec.Tunnel.1.P2_LifeTime,false,true,120,xsd:string
 Device.X_GTK_Ethernet,true,false,,
 Device.X_GTK_Ethernet.InterfaceNumberOfEntries,false,false,,
+Device.X_GTK_Ethernet.Interface,true,false,,
 Device.X_GTK_Ethernet.Interface.1,true,false,,
 Device.X_GTK_Ethernet.Interface.1.Status,false,false,up,xsd:string
 Device.X_GTK_Ethernet.Interface.1.Name,false,false,eth0_0,xsd:string
@@ -361,7 +382,7 @@ Device.WiFi,true,false,,
 Device.WiFi.RadioNumberOfEntries,false,false,1,xsd:unsignedInt
 Device.WiFi.SSIDNumberOfEntries,false,false,3,xsd:unsignedInt
 Device.WiFi.AccessPointNumberOfEntries,false,false,2,xsd:unsignedInt
-Device.WiFi.SSID,true,true,,
+Device.WiFi.SSID,true,false,,
 Device.WiFi.SSID.1,true,false,,
 Device.WiFi.SSID.1.Name,false,false,wlan0.1,xsd:string
 Device.WiFi.SSID.1.LowerLayers,false,true,Device.WiFi.Radio.1,xsd:string
@@ -418,6 +439,7 @@ Device.WiFi.SSID.5.Stats.DiscardPacketsSent,false,false,0,xsd:unsignedInt
 Device.WiFi.SSID.5.Stats.DiscardPacketsReceived,false,false,0,xsd:unsignedInt
 Device.WiFi.SSID.5.Stats.MulticastPacketsSent,false,false,0,xsd:unsignedInt
 Device.WiFi.SSID.5.Stats.MulticastPacketsReceived,false,false,0,xsd:unsignedInt
+Device.WiFi.AccessPoint,true,false,,
 Device.WiFi.AccessPoint.1,true,false,,
 Device.WiFi.AccessPoint.1.Alias,false,false,cpe-1,xsd:string
 Device.WiFi.AccessPoint.1.Enable,false,true,true,xsd:boolean
@@ -448,7 +470,7 @@ Device.WiFi.AccessPoint.1.WPS.Enable,false,true,true,xsd:boolean
 Device.WiFi.AccessPoint.1.WPS.ConfigMethodsSupported,false,false,,
 Device.WiFi.AccessPoint.1.WPS.ConfigMethodsEnabled,false,false,,
 Device.WiFi.AccessPoint.1.WPS.Status,false,false,,
-Device.WiFi.AccessPoint.1.X_GTK_Vendor.,true,false,,
+Device.WiFi.AccessPoint.1.X_GTK_Vendor,true,false,,
 Device.WiFi.AccessPoint.1.X_GTK_Vendor.WaveWDSMode,false,true,Disabled,xsd:string
 Device.WiFi.AccessPoint.1.X_GTK_Vendor.WaveWDSPeers,false,true,,xsd:string
 Device.WiFi.AccessPoint.1.X_LANTIQ_COM_Vendor,true,false,,
@@ -478,6 +500,7 @@ Device.WiFi.AccessPoint.5.X_GTK_Vendor.WaveWDSPeers,false,true,,xsd:string
 Device.WiFi.AccessPoint.5.X_LANTIQ_COM_Vendor,true,false,,
 Device.WiFi.AccessPoint.5.X_LANTIQ_COM_Vendor.MACAddressControlList,false,true,,xsd:string
 Device.WiFi.AccessPoint.5.X_LANTIQ_COM_Vendor.MACAddressControlMode,false,true,Disabled,xsd:string
+Device.WiFi.Radio,true,false,,
 Device.WiFi.Radio.1,true,false,,
 Device.WiFi.Radio.1.Status,false,false,Down,xsd:string
 Device.WiFi.Radio.1.Alias,false,false,cpe-1,xsd:string
@@ -497,7 +520,7 @@ Device.WiFi.Radio.1.BeaconPeriod,false,true,100,xsd:unsignedInt
 Device.WiFi.Radio.1.TransmitPower,false,true,100,xsd:int
 Device.WiFi.Radio.1.CoexEnabled,false,true,true,xsd:boolean
 Device.WiFi.Radio.1.SupportedFrequencyBands,false,true,,xsd:string
-Device.WiFi.Radio.1.X_GTK_Vendor.WPS.,true,false,,
+Device.WiFi.Radio.1.X_GTK_Vendor.WPS,true,false,,
 Device.WiFi.Radio.1.X_GTK_Vendor.WPS.PIN,false,true,,xsd:string
 Device.WiFi.Radio.1.Stats,true,false,,
 Device.WiFi.Radio.1.Stats.Noise,false,false,255,xsd:unsignedInt

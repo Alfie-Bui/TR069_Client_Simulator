@@ -4,9 +4,11 @@ const net = require("net");
 const xmlParser = require("../helper/xml-parser");
 const xmlUtils = require("../helper/xml-utils");
 const methods = require("./methods");
+const dbService = require("../dbService");
 
 // Custom
 const utils = require("../utils");
+const { count } = require("console");
 
 const NAMESPACES = {
   "soap-enc": "http://schemas.xmlsoap.org/soap/encoding/",
@@ -257,6 +259,10 @@ function handleMethod(xml) {
       break;
     }
   }
+
+  console.log(
+    `\n===== Got a server request at ${utils.getHumanReadableTime()} =====`
+  );
   let method = methods[requestElement.localName];
 
   if (!method) {
@@ -339,6 +345,7 @@ function listenForConnectionRequests(serialNumber, acsUrlOptions) {
   });
 }
 
+let count_connect = 0;
 function start(dataModel, serialNumber, acsUrl, response_instance) {
   console.log("\n=== genieacs-sim.simulator ===");
   if (httpServer !== null) {
@@ -352,24 +359,17 @@ function start(dataModel, serialNumber, acsUrl, response_instance) {
   }
 
   device = dataModel;
+  count_connect += 1;
+  fs.writeFile(`${count_connect}.json`, `${JSON.stringify(device)}`, (error) => {
+    if (error) console.log(error);
+  });
 
-  if (device["DeviceID.SerialNumber"])
-    device["DeviceID.SerialNumber"][1] = serialNumber;
-  if (device["Device.DeviceInfo.SerialNumber"])
-    // TR069
-    device["Device.DeviceInfo.SerialNumber"][1] = serialNumber;
-  if (device["InternetGatewayDevice.DeviceInfo.SerialNumber"])
-    device["InternetGatewayDevice.DeviceInfo.SerialNumber"][1] = serialNumber;
+  device["Device.DeviceInfo.SerialNumber"][1] = serialNumber;
 
   let username = "";
   let password = "";
-  if (device["Device.ManagementServer.Username"]) {
-    username = device["Device.ManagementServer.Username"][1];
-    password = device["Device.ManagementServer.Password"][1];
-  } else if (device["InternetGatewayDevice.ManagementServer.Username"]) {
-    username = device["InternetGatewayDevice.ManagementServer.Username"][1];
-    password = device["InternetGatewayDevice.ManagementServer.Password"][1];
-  }
+  username = device["Device.ManagementServer.Username"][1];
+  password = device["Device.ManagementServer.Password"][1];
 
   basicAuth =
     "Basic " + Buffer.from(`${username}:${password}`).toString("base64");
@@ -383,17 +383,15 @@ function start(dataModel, serialNumber, acsUrl, response_instance) {
   });
 
   listenForConnectionRequests(serialNumber, requestOptions)
-    .then((connectionRequestUrl) => {
-      if (
-        device["InternetGatewayDevice.ManagementServer.ConnectionRequestURL"]
-      ) {
-        device[
-          "InternetGatewayDevice.ManagementServer.ConnectionRequestURL"
-        ][1] = connectionRequestUrl;
-      } else if (device["Device.ManagementServer.ConnectionRequestURL"]) {
-        device["Device.ManagementServer.ConnectionRequestURL"][1] =
-          connectionRequestUrl;
-      }
+    .then(async (connectionRequestUrl) => {
+      device["Device.ManagementServer.ConnectionRequestURL"][1] =
+        connectionRequestUrl;
+
+      // for now do not wait until modify db done because if no encounter error, the next reload this DB process should be done
+      await dbService.modValue({
+        "Device.DeviceInfo.SerialNumber": ["false", "false", serialNumber, "xsd:string"],
+        "Device.ManagementServer.ConnectionRequestURL": ["false", "false", connectionRequestUrl, "xsd:string"],
+      });
       startSession()
         .then(() => {
           utils.sendResponseToFE(

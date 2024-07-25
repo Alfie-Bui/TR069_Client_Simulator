@@ -33,6 +33,7 @@ function mapping(command, page, lsData, subOption) {
         returnVal[`${complexPrefixes[1]}.${dbIndex}.MaxAssociatedDevices`]        = ["false", "true", lsData[key].Maxconnected, "xsd:unsignedInt"];
         returnVal[`${complexPrefixes[1]}.${dbIndex}.SSIDAdvertisementEnabled`]    = ["false", "true", lsData[key].Configuration.AdvertiseSSID.toString(), "xsd:boolean"];
         returnVal[`${complexPrefixes[1]}.${dbIndex}.SSIDReference`]               = ["false", "true", `Device.WiFi.SSID.${parseInt(key)}`, "xsd:string"];
+        returnVal[`${complexPrefixes[1]}.${dbIndex}.Security`]                    = ["true", "false", "", ""];
         returnVal[`${complexPrefixes[1]}.${dbIndex}.Security.KeyPassphrase`]      = ["false", "true", lsData[key].Configuration.Passphrase, "xsd:string"];
         returnVal[`${complexPrefixes[1]}.${dbIndex}.Security.ModeEnabled`]        = ["false", "true", lsData[key].Configuration.SecurityType, "xsd:string"];
         returnVal[`${complexPrefixes[1]}.${dbIndex}.Security.ModesSupported`]     = ["false", "false", "None,WEP-64,WEP-128,WPA-Personal,WPA2-Personal,WPA-WPA2-Personal,WPA-Enterprise,WPA2-Enterprise,WPA-WPA2-Enterprise", "xsd:string"];
@@ -72,7 +73,7 @@ function mapping(command, page, lsData, subOption) {
         dbIndex = parseInt(key) + 1;
         // "Device.WiFi.SSID"
         if (key != 0) {
-          returnVal.complexPart[`${complexPrefixes[0]}.${dbIndex}`]               = ["true", "true", "", ""];
+          returnVal.complexPart[`${complexPrefixes[0]}.${dbIndex}`]               = ["true", "false", "", ""];
         }
         returnVal.complexPart[`${complexPrefixes[0]}.${dbIndex}.LowerLayers`]   = ["false", "true", "Device.WiFi.Radio.1", "xsd::string"];
         returnVal.complexPart[`${complexPrefixes[0]}.${dbIndex}.Name`]          = ["false", "false", "wlan0.1", "xsd::string"];
@@ -90,6 +91,7 @@ function mapping(command, page, lsData, subOption) {
         returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}.MaxAssociatedDevices`]                      = ["false", "true", lsData[key].Maxconnected, "xsd:unsignedInt"];
         returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}.SSIDAdvertisementEnabled`]                  = ["false", "true", lsData[key].Configuration.AdvertiseSSID.toString(), "xsd:boolean"];
         returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}.SSIDReference`]                             = ["false", "true", `Device.WiFi.SSID.${dbIndex}`, "xsd:string"];
+        returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}.Security`]                                  = ["true", "false", "", ""];
         returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}.Security.KeyPassphrase`]                    = ["false", "true", lsData[key].Configuration.Passphrase, "xsd:string"];
         returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}.Security.ModeEnabled`]                      = ["false", "true", lsData[key].Configuration.SecurityType, "xsd:string"];
         returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}.Security.ModesSupported`]                   = ["false", "false", `"None,WEP-64,WEP-128,WPA-Personal,WPA2-Personal,WPA-WPA2-Personal,WPA-Enterprise,WPA2-Enterprise,WPA-WPA2-Enterprise"`, "xsd:string"];
@@ -232,6 +234,7 @@ function mapping(command, page, lsData, subOption) {
       var dbIndex;
       for (const key in lsData) {
         dbIndex = parseInt(key) + 5;
+        returnVal[`${complexPrefixes[0]}.${dbIndex}.X_GTK_Vendor`]              = ["true", "false", "", ""];
         returnVal[`${complexPrefixes[0]}.${dbIndex}.X_GTK_Vendor.WaveWDSMode`]  = ["false", "true", lsData[key].WDS.WDSMode.toString(), "xsd:string"];
         returnVal[`${complexPrefixes[0]}.${dbIndex}.X_GTK_Vendor.WaveWDSPeers`] = ["false", "true", lsData[key].WDS.MACAddress.join(','), "xsd:string"];
       }
@@ -241,7 +244,7 @@ function mapping(command, page, lsData, subOption) {
     case "wifi-guest_access-add.html":
       var prefixes = ["Device.X_GTK_GuestAccess.Rule"];
       var dbIndex = parseInt(subOption) + 1;
-      returnVal[`${prefixes[0]}.${dbIndex}`]            = ["true", "true", "", ""];
+      returnVal[`${prefixes[0]}.${dbIndex}`]            = ["true", "false", "", ""];
       returnVal[`${prefixes[0]}.${dbIndex}.SSIDName`]   = ["false", "true", lsData.SSID, "xsd::string"];
       returnVal[`${prefixes[0]}.${dbIndex}.Radio`]      = ["false", "true", lsData.WirelessBand == "0" ? "radio0" : "radio1", "xsd::string"];
       switch (lsData.SecurityType) {
