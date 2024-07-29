@@ -5,6 +5,7 @@ const https = require("https");
 const xmlParser = require("../helper/xml-parser");
 const xmlUtils = require("../helper/xml-utils");
 const dbService = require("../dbService");
+const utils = require("../utils.js");
 
 const INFORM_PARAMS = [
   "Device.DeviceInfo.SpecVersion",
@@ -198,94 +199,118 @@ function getSortedPaths(device) {
   return device._sortedPaths;
 }
 
-function GetParameterNames(device, request, callback) {
-  let parameterNames = getSortedPaths(device);
-
-  let parameterPath, nextLevel;
-  for (let c of request.children) {
-    switch (c.name) {
-      case "ParameterPath":
-        parameterPath = c.text;
-        break;
-      case "NextLevel":
-        nextLevel = Boolean(JSON.parse(c.text));
-        break;
+async function GetParameterNames(device, request, callback) {
+  dbService.getValue({}, function (error, docs) {
+    if (error) {
+      console.error(
+        "[ERROR] Encounter error when try handle GetParameterValues command from server, error: ",
+        error
+      );
+      return callback("Get Parameter Values fail", true);
     }
-  }
+    device = utils.createDeviceDataToSendACSServer(docs);
+    let parameterNames = getSortedPaths(device);
 
-  let parameterList = [];
-
-  if (nextLevel) {
-    for (let p of parameterNames) {
-      if (p.startsWith(parameterPath) && p.length > parameterPath.length + 1) {
-        let i = p.indexOf(".", parameterPath.length + 1);
-        if (i === -1 || i === p.length - 1) parameterList.push(p);
+    let parameterPath, nextLevel;
+    for (let c of request.children) {
+      switch (c.name) {
+        case "ParameterPath":
+          parameterPath = c.text;
+          break;
+        case "NextLevel":
+          nextLevel = Boolean(JSON.parse(c.text));
+          break;
       }
     }
-  } else {
-    for (let p of parameterNames) {
-      if (p.startsWith(parameterPath)) parameterList.push(p);
+
+    let parameterList = [];
+
+    if (nextLevel) {
+      for (let p of parameterNames) {
+        if (
+          p.startsWith(parameterPath) &&
+          p.length > parameterPath.length + 1
+        ) {
+          let i = p.indexOf(".", parameterPath.length + 1);
+          if (i === -1 || i === p.length - 1) parameterList.push(p);
+        }
+      }
+    } else {
+      for (let p of parameterNames) {
+        if (p.startsWith(parameterPath)) parameterList.push(p);
+      }
     }
-  }
 
-  let params = [];
-  for (let p of parameterList) {
-    params.push(
-      xmlUtils.node("ParameterInfoStruct", {}, [
-        xmlUtils.node("Name", {}, p),
-        xmlUtils.node("Writable", {}, String(device[p][0])),
-      ])
+    let params = [];
+    for (let p of parameterList) {
+      params.push(
+        xmlUtils.node("ParameterInfoStruct", {}, [
+          xmlUtils.node("Name", {}, p),
+          xmlUtils.node("Writable", {}, String(device[p][0])),
+        ])
+      );
+    }
+
+    let response = xmlUtils.node(
+      "cwmp:GetParameterNamesResponse",
+      {},
+      xmlUtils.node(
+        "ParameterList",
+        {
+          "soap-enc:arrayType": `cwmp:ParameterInfoStruct[${parameterList.length}]`,
+        },
+        params
+      )
     );
-  }
 
-  let response = xmlUtils.node(
-    "cwmp:GetParameterNamesResponse",
-    {},
-    xmlUtils.node(
-      "ParameterList",
-      {
-        "soap-enc:arrayType": `cwmp:ParameterInfoStruct[${parameterList.length}]`,
-      },
-      params
-    )
-  );
-
-  return callback(response);
+    return callback(response);
+  });
 }
 
-function GetParameterValues(device, request, callback) {
-  let parameterNames = request.children[0].children;
+async function GetParameterValues(device, request, callback) {
+  dbService.getValue({}, function (error, docs) {
+    if (error) {
+      console.error(
+        "[ERROR] Encounter error when try handle GetParameterValues command from server, error: ",
+        error
+      );
+      return callback("Get Parameter Values fail", true);
+    }
+    device = utils.createDeviceDataToSendACSServer(docs);
 
-  let params = [];
-  for (let p of parameterNames) {
-    let name = p.text;
-    let value = device[name][1];
-    let type = device[name][2];
-    let valueStruct = xmlUtils.node("ParameterValueStruct", {}, [
-      xmlUtils.node("Name", {}, name),
+    let parameterNames = request.children[0].children;
+
+    let params = [];
+    for (let p of parameterNames) {
+      let name = p.text;
+      let value = device[name][1];
+      let type = device[name][2];
+      let valueStruct = xmlUtils.node("ParameterValueStruct", {}, [
+        xmlUtils.node("Name", {}, name),
+        xmlUtils.node(
+          "Value",
+          { "xsi:type": type },
+          xmlParser.encodeEntities(value)
+        ),
+      ]);
+      params.push(valueStruct);
+    }
+
+    let response = xmlUtils.node(
+      "cwmp:GetParameterValuesResponse",
+      {},
       xmlUtils.node(
-        "Value",
-        { "xsi:type": type },
-        xmlParser.encodeEntities(value)
-      ),
-    ]);
-    params.push(valueStruct);
-  }
+        "ParameterList",
+        {
+          "soap-enc:arrayType":
+            "cwmp:ParameterValueStruct[" + parameterNames.length + "]",
+        },
+        params
+      )
+    );
 
-  let response = xmlUtils.node(
-    "cwmp:GetParameterValuesResponse",
-    {},
-    xmlUtils.node(
-      "ParameterList",
-      {
-        "soap-enc:arrayType":
-          "cwmp:ParameterValueStruct[" + parameterNames.length + "]",
-      },
-      params
-    )
-  );
-
-  return callback(response);
+    return callback(response);
+  });
 }
 
 async function SetParameterValues(device, request, callback) {
@@ -378,7 +403,12 @@ async function AddObject(device, request, callback) {
       device[`${objectName.slice(0, -1)}NumberOfEntries`][1] =
         parseInt(device[`${objectName.slice(0, -1)}NumberOfEntries`][1]) + 1;
       await dbService.modValue({
-        [`${objectName.slice(0, -1)}NumberOfEntries`]: ['false', 'false', device[`${objectName.slice(0, -1)}NumberOfEntries`][1], 'xsd:unsignedInt'],
+        [`${objectName.slice(0, -1)}NumberOfEntries`]: [
+          "false",
+          "false",
+          device[`${objectName.slice(0, -1)}NumberOfEntries`][1],
+          "xsd:unsignedInt",
+        ],
       });
     }
     await dbService.reloadDatabase();
@@ -411,13 +441,23 @@ async function DeleteObject(device, request, callback) {
     // delete at DB
     let delPattern = objectName.slice(0, -1);
     await dbService.delValue([delPattern]);
-    if (device[`${delPattern.replace(/\.\d+/, "")}NumberOfEntries`] !== undefined) {
-      let updateNumberEntries = `${delPattern.replace(/\.\d+/, "")}NumberOfEntries`;
+    if (
+      device[`${delPattern.replace(/\.\d+/, "")}NumberOfEntries`] !== undefined
+    ) {
+      let updateNumberEntries = `${delPattern.replace(
+        /\.\d+/,
+        ""
+      )}NumberOfEntries`;
       //remove the . character, update numberof entry
       device[`${updateNumberEntries}`][1] =
         parseInt(device[`${updateNumberEntries}`][1]) - 1;
       await dbService.modValue({
-        [`${updateNumberEntries}`]: ['false', 'false', device[`${updateNumberEntries}`][1], 'xsd:unsignedInt'],
+        [`${updateNumberEntries}`]: [
+          "false",
+          "false",
+          device[`${updateNumberEntries}`][1],
+          "xsd:unsignedInt",
+        ],
       });
     }
     await dbService.reloadDatabase();
