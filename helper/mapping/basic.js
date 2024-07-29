@@ -45,7 +45,7 @@ function mapping(command, page, lsData, subOption) {
       };
       returnVal.complexPart = {};
       returnVal.complexPrefix = complexPrefix;
-      returnVal.complexPart[`${complexPrefix[0]}`] = ["true", "true", "", "xsd::string"];
+      returnVal.complexPart[`${complexPrefix[0]}`] = ["true", "false", "", "xsd::string"];
       returnVal.complexPartLength = lsData.IPAddressReservation.length;
       lsData.IPAddressReservation.forEach((element, index) => {
         const obj = `${complexPrefix[0]}.${index + 1}`;
@@ -109,7 +109,7 @@ function mapping(command, page, lsData, subOption) {
           returnVal.complexPart[`${complexPrefix[3]}.${dbIndex}.VLANID`] = ["false", "true", lsData[i].VLAN, "xsd::unsignedInt"];
 
           // Device.IP.Interface (continue)
-          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address`]                     = ["true", "false", "", ""];
+          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address`]                     = ["true", "true", "", ""];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address.1`]                   = ["true", "false", "", ""];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address.1.AddressingType`]    = ["false", "true", lsData[i].ConnectionType, "xsd::string"];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4Address.1.Alias`]             = ["false", "true", `cpe-${dbIndex}`, "xsd::string"];
@@ -117,7 +117,7 @@ function mapping(command, page, lsData, subOption) {
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv4AddressNumberOfEntries`]      = ["false", "false", "1", "xsd::unsignedInt"];
 
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Enable`]                      = ["false", "true", lsData[i].EnableIPv6, "xsd::boolean"];
-          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Address`]                     = ["true", "false", "", ""];
+          returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Address`]                     = ["true", "true", "", ""];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Address.1`]                   = ["true", "false", "", ""];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Address.1.Alias`]             = ["false", "true", `cpe-${dbIndex}`, "xsd::string"];
           returnVal.complexPart[`${complexPrefix[0]}.${dbIndex}.IPv6Address.1.Origin`]            = ["false", "true", lsData[i].IPv6.AddressingType, "xsd::string"];
@@ -177,7 +177,7 @@ function mapping(command, page, lsData, subOption) {
 
           /* PPPOE */
           // Device.PPP.Interface
-          returnVal.complexPart[`${complexPrefix[5]}.${dbIndex}`]            = ["true", "false", "", ""];
+          returnVal.complexPart[`${complexPrefix[5]}.${dbIndex}`]            = ["true", "true", "", ""];
           returnVal.complexPart[`${complexPrefix[5]}.${dbIndex}.Username`]   = ["false", "true", lsData[i].Username, "xsd:string"];
           returnVal.complexPart[`${complexPrefix[5]}.${dbIndex}.Password`]   = ["false", "true", lsData[i].Password, "xsd:string"];
           returnVal.complexPart[`${complexPrefix[5]}.${dbIndex}.MaxMRUSize`] = ["false", "true", lsData[i].MTUSize, "xsd:unsignedInt"];

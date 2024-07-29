@@ -82,7 +82,7 @@ function mapping(command, page, lsData, subOption) {
     case "advanced-port_mapping-add.html":
       var complexPrefixes = ["Device.NAT.PortMapping"];
       var dbIndex = parseInt(subOption) + 1;
-      returnVal[`${complexPrefixes[0]}.${dbIndex}`]                     = ["true", "false", "", ""];
+      returnVal[`${complexPrefixes[0]}.${dbIndex}`]                     = ["true", "true", "", ""];
       returnVal[`${complexPrefixes[0]}.${dbIndex}.Enable`]              = ["false", "true", lsData.Enable.toString(), "xsd:boolean"];
       returnVal[`${complexPrefixes[0]}.${dbIndex}.RemoteHost`]          = ["false", "true", lsData.IPv4, "xsd:string"];
       returnVal[`${complexPrefixes[0]}.${dbIndex}.ExternalPort`]        = ["false", "true", lsData.PortRange[0], "xsd:unsignedInt"];
@@ -105,7 +105,7 @@ function mapping(command, page, lsData, subOption) {
     case "advanced-port_triggering-add.html":
       var complexPrefixes = ["Device.NAT.X_GTK_PortTriggering"];
       var dbIndex = parseInt(subOption) + 1;
-      returnVal[`${complexPrefixes[0]}.${dbIndex}`]                     = ["true", "false", "", ""];
+      returnVal[`${complexPrefixes[0]}.${dbIndex}`]                     = ["true", "true", "", ""];
       returnVal[`${complexPrefixes[0]}.${dbIndex}.Enable`]              = ["false", "true", lsData.EnaRule.toString(), "xsd:boolean"];
       returnVal[`${complexPrefixes[0]}.${dbIndex}.TriggerPort`]         = ["false", "true", lsData.TrigerPort, "xsd:unsignedInt"];
       returnVal[`${complexPrefixes[0]}.${dbIndex}.TriggerProtocol`]     = ["false", "true", lsData.TrigerProtocol, "xsd:string"];
@@ -120,7 +120,7 @@ function mapping(command, page, lsData, subOption) {
       break;
     case "advanced-static_routing-add.html":
       var complexPrefixes = ["Device.Routing.Router.1.IPv4Forwarding"];
-      returnVal[`${complexPrefixes[0]}.${parseInt(subOption) + 1}`]                     = ["true", "false", "", ""];
+      returnVal[`${complexPrefixes[0]}.${parseInt(subOption) + 1}`]                     = ["true", "true", "", ""];
       returnVal[`${complexPrefixes[0]}.${parseInt(subOption) + 1}.StaticRoute`]         = ["false", "true", "false", "xsd:boolean"];
       returnVal[`${complexPrefixes[0]}.${parseInt(subOption) + 1}.DestIPAddress`]       = ["false", "true", lsData[subOption].DestIPAddress, "xsd:string"];
       returnVal[`${complexPrefixes[0]}.${parseInt(subOption) + 1}.DestSubnetMask`]      = ["false", "true", lsData[subOption].DestSubnetMask, "xsd:string"];
@@ -132,7 +132,7 @@ function mapping(command, page, lsData, subOption) {
       break;
     case "advanced-static_routing-ipv6Config-add.html":
       var complexPrefixes = ["Device.Routing.Router.1.IPv6Forwarding"];
-      returnVal[`${complexPrefixes[0]}.${parseInt(subOption) + 1}`]                     = ["true", "false", "", ""];
+      returnVal[`${complexPrefixes[0]}.${parseInt(subOption) + 1}`]                     = ["true", "true", "", ""];
       returnVal[`${complexPrefixes[0]}.${parseInt(subOption) + 1}.DestIPPrefix`]        = ["false", "true", lsData[subOption].DestIPPrefix, "xsd:string"];
       returnVal[`${complexPrefixes[0]}.${parseInt(subOption) + 1}.NextHop`]             = ["false", "true", lsData[subOption].NextHop, "xsd:string"];
       returnVal[`${complexPrefixes[0]}.${parseInt(subOption) + 1}.Interface`]           = ["false", "true", lsData[subOption].Interface, "xsd:string"];
@@ -153,7 +153,7 @@ function mapping(command, page, lsData, subOption) {
     case "advanced-vpn-add.html":
       var ipsecIdx = parseInt(subOption) + 1;
       var ipsecPrefix = ["Device.X_GTK_IPSec.Tunnel"];
-      returnVal[`${ipsecPrefix[0]}.${ipsecIdx}`]                                      = ["true", "false", "", ""];
+      returnVal[`${ipsecPrefix[0]}.${ipsecIdx}`]                                      = ["true", "true", "", ""];
       returnVal[`${ipsecPrefix[0]}.${ipsecIdx}.Enable`]                               = ["false", "true", lsData.openwrtipsecremote_enabled === 'on' ? 'true' : 'false', "xsd:boolean"];
       returnVal[`${ipsecPrefix[0]}.${ipsecIdx}.TunnelName`]                           = ["false", "true", lsData.tunnel_name, "xsd:string"];
       returnVal[`${ipsecPrefix[0]}.${ipsecIdx}.SharedKey`]                            = ["false", "true", lsData.openwrtipsecremotepre_shared_key, "xsd:string"];

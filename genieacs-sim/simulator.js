@@ -138,7 +138,7 @@ function sendRequest(xml, callback) {
     return request.end(body);
   } catch (err) {
     console.error("Catch error at sendReq: ", err);
-    callback("Error");
+    callback("Error: ", err);
   }
 }
 
@@ -261,7 +261,8 @@ function handleMethod(xml) {
   }
 
   console.log(
-    `\n===== Got a server request at ${utils.getHumanReadableTime()} =====`
+    `\n===== Got a server request at ${utils.getHumanReadableTime()} =====`,
+    requestElement.localName
   );
   let method = methods[requestElement.localName];
 
@@ -274,8 +275,14 @@ function handleMethod(xml) {
     return;
   }
 
-  method(device, requestElement, function (body) {
-    let xml = createSoapDocument(requestId, body);
+  method(device, requestElement, function (body, errFlag) {
+    let xml;
+    if (errFlag === true) {
+      xml = createFaultResponse(9000, body);
+      xml = createSoapDocument(requestId, xml);
+    } else {
+      xml = createSoapDocument(requestId, body);
+    }
     sendRequest(xml, function (xml) {
       handleMethod(xml);
     });

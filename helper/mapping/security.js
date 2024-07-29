@@ -40,7 +40,7 @@ function mapping(command, page, lsData, subOption) {
     case "security-parental_control-devControl-add.html":
       var complexPrefixes = ["Device.Firewall.X_GTK_ParentalControl.Rule"];
       var dbIndex = parseInt(subOption) + 1;
-      returnVal[`${complexPrefixes[0]}.${dbIndex}`]               = ["true", "false", "", ""];
+      returnVal[`${complexPrefixes[0]}.${dbIndex}`]               = ["true", "true", "", ""];
       returnVal[`${complexPrefixes[0]}.${dbIndex}.Enable`]        = ["false", "true", lsData.EnableParentalControlRule.toString(), "xsd:boolean"];
       returnVal[`${complexPrefixes[0]}.${dbIndex}.PolicyName`]    = ["false", "true", lsData.PolicyName, "xsd:string"];
       returnVal[`${complexPrefixes[0]}.${dbIndex}.MACAddress`]    = ["false", "true", lsData.MACAddress, "xsd:string"];

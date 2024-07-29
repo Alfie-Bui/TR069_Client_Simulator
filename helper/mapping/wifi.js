@@ -125,6 +125,7 @@ function mapping(command, page, lsData, subOption) {
       var dbIndex;
       for (const key in lsData) {
         dbIndex = parseInt(key) + 1;
+        returnVal[`${complexPrefixes[0]}.${dbIndex}.X_GTK_Vendor`]              = ["true", "false", "", ""];
         returnVal[`${complexPrefixes[0]}.${dbIndex}.X_GTK_Vendor.WaveWDSMode`]  = ["false", "true", lsData[key].WDS.WDSMode.toString(), "xsd:string"];
         returnVal[`${complexPrefixes[0]}.${dbIndex}.X_GTK_Vendor.WaveWDSPeers`] = ["false", "true", lsData[key].WDS.MACAddress.join(','), "xsd:string"];
       }
@@ -184,7 +185,7 @@ function mapping(command, page, lsData, subOption) {
         dbIndex = parseInt(key) + 5;
         // "Device.WiFi.SSID"
         if (key != 0) {
-          returnVal.complexPart[`${complexPrefixes[0]}.${dbIndex}`]           = ["true", "true", "", ""];
+          returnVal.complexPart[`${complexPrefixes[0]}.${dbIndex}`]           = ["true", "false", "", ""];
         }
         returnVal.complexPart[`${complexPrefixes[0]}.${dbIndex}.LowerLayers`] = ["false", "true", "Device.WiFi.Radio.5", "xsd::string"];
         returnVal.complexPart[`${complexPrefixes[0]}.${dbIndex}.Name`]        = ["false", "false", "wlan2.2", "xsd::string"];
@@ -192,7 +193,7 @@ function mapping(command, page, lsData, subOption) {
         returnVal.complexPart[`${complexPrefixes[0]}.${dbIndex}.X_LANTIQ_COM_Vendor_BridgeName`] = ["false", "true", lsData[key].BridgeName, "xsd::string"];
         // "Device.WiFi.AccessPoint"
         if (key != 0) {
-          returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}`]                     = ["true", "true", "", ""];
+          returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}`]                     = ["true", "false", "", ""];
           returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}.Security`]            = ["true", "false", "", ""];
           returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}.WPS`]                 = ["true", "false", "", ""];
           returnVal.complexPart[`${complexPrefixes[1]}.${dbIndex}.X_GTK_Vendor`]        = ["true", "false", "", ""];
